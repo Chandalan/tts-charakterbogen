@@ -1,5 +1,86 @@
+--#include <!\tts-charakterbogen\charakterbogen_rechts>
+
+function print_table(node)
+    local cache, stack, output = {},{},{}
+    local depth = 1
+    local output_str = "{\n"
+
+    while true do
+        local size = 0
+        for k,v in pairs(node) do
+            size = size + 1
+        end
+
+        local cur_index = 1
+        for k,v in pairs(node) do
+            if (cache[node] == nil) or (cur_index >= cache[node]) then
+
+                if (string.find(output_str,"}",output_str:len())) then
+                    output_str = output_str .. ",\n"
+                elseif not (string.find(output_str,"\n",output_str:len())) then
+                    output_str = output_str .. "\n"
+                end
+
+                -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+                table.insert(output,output_str)
+                output_str = ""
+
+                local key
+                if (type(k) == "number" or type(k) == "boolean") then
+                    key = "["..tostring(k).."]"
+                else
+                    key = "['"..tostring(k).."']"
+                end
+
+                if (type(v) == "number" or type(v) == "boolean") then
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = "..tostring(v)
+                elseif (type(v) == "table") then
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = {\n"
+                    table.insert(stack,node)
+                    table.insert(stack,v)
+                    cache[node] = cur_index+1
+                    break
+                else
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
+                end
+
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+                else
+                    output_str = output_str .. ","
+                end
+            else
+                -- close the table
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+                end
+            end
+
+            cur_index = cur_index + 1
+        end
+
+        if (size == 0) then
+            output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+        end
+
+        if (#stack > 0) then
+            node = stack[#stack]
+            stack[#stack] = nil
+            depth = cache[node] == nil and depth + 1 or depth - 1
+        else
+            break
+        end
+    end
+
+    -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+    table.insert(output,output_str)
+    output_str = table.concat(output)
+
+    print(output_str)
+end
+
 --Set this to true while editing and false when you have finished
-disableSave = false
+disableSave = true
 --Remember to set this to false once you are done making changes
 --Then, after you save & apply it, save your game too
 
@@ -432,504 +513,504 @@ defaultButtonData = {
             lockable = false
         },
         {
-            name = "Akrobatik G",
+            name = "Fertigkeiten Akrobatik G",
             pos   = {1.077,0.107,-0.178},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Akrobatik E",
+            name = "Fertigkeiten Akrobatik E",
             pos   = {1.120,0.107,-0.178},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Akrobatik M",
+            name = "Fertigkeiten Akrobatik M",
             pos   = {1.164,0.107,-0.178},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Akrobatik L",
+            name = "Fertigkeiten Akrobatik L",
             pos   = {1.207,0.107,-0.178},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Arkane Künste G",
+            name = "Fertigkeiten Arkane Künste G",
             pos   = {1.077,0.107,-0.06},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Arkane Künste E",
+            name = "Fertigkeiten Arkane Künste E",
             pos   = {1.120,0.107,-0.06},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Arkane Künste M",
+            name = "Fertigkeiten Arkane Künste M",
             pos   = {1.164,0.107,-0.06},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Arkane Künste L",
+            name = "Fertigkeiten Arkane Künste L",
             pos   = {1.207,0.107,-0.06},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Athletik G",
+            name = "Fertigkeiten Athletik G",
             pos   = {1.077,0.107,0.058},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Athletik E",
+            name = "Fertigkeiten Athletik E",
             pos   = {1.120,0.107,0.058},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Athletik M",
+            name = "Fertigkeiten Athletik M",
             pos   = {1.164,0.107,0.058},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Athletik L",
+            name = "Fertigkeiten Athletik L",
             pos   = {1.207,0.107,0.058},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Darbietung G",
+            name = "Fertigkeiten Darbietung G",
             pos   = {1.077,0.107,0.177},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Darbietung E",
+            name = "Fertigkeiten Darbietung E",
             pos   = {1.120,0.107,0.177},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Darbietung M",
+            name = "Fertigkeiten Darbietung M",
             pos   = {1.164,0.107,0.177},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Darbietung L",
+            name = "Fertigkeiten Darbietung L",
             pos   = {1.207,0.107,0.177},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Diebeskunst G",
+            name = "Fertigkeiten Diebeskunst G",
             pos   = {1.077,0.107,0.295},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Diebeskunst E",
+            name = "Fertigkeiten Diebeskunst E",
             pos   = {1.120,0.107,0.295},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Diebeskunst M",
+            name = "Fertigkeiten Diebeskunst M",
             pos   = {1.164,0.107,0.295},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Diebeskunst L",
+            name = "Fertigkeiten Diebeskunst L",
             pos   = {1.207,0.107,0.295},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Diplomatie G",
+            name = "Fertigkeiten Diplomatie G",
             pos   = {1.077,0.107,0.414},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Diplomatie E",
+            name = "Fertigkeiten Diplomatie E",
             pos   = {1.120,0.107,0.414},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Diplomatie M",
+            name = "Fertigkeiten Diplomatie M",
             pos   = {1.164,0.107,0.414},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Diplomatie L",
+            name = "Fertigkeiten Diplomatie L",
             pos   = {1.207,0.107,0.414},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Einschüchtern G",
+            name = "Fertigkeiten Einschüchtern G",
             pos   = {1.077,0.107,0.533},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Einschüchtern E",
+            name = "Fertigkeiten Einschüchtern E",
             pos   = {1.120,0.107,0.533},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Einschüchtern M",
+            name = "Fertigkeiten Einschüchtern M",
             pos   = {1.164,0.107,0.533},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Einschüchtern L",
+            name = "Fertigkeiten Einschüchtern L",
             pos   = {1.207,0.107,0.533},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Gesellschaftskunde G",
+            name = "Fertigkeiten Gesellschaftskunde G",
             pos   = {1.077,0.107,0.653},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Gesellschaftskunde E",
+            name = "Fertigkeiten Gesellschaftskunde E",
             pos   = {1.120,0.107,0.653},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Gesellschaftskunde M",
+            name = "Fertigkeiten Gesellschaftskunde M",
             pos   = {1.164,0.107,0.653},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Gesellschaftskunde L",
+            name = "Fertigkeiten Gesellschaftskunde L",
             pos   = {1.207,0.107,0.653},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Handwerkskunst G",
+            name = "Fertigkeiten Handwerkskunst G",
             pos   = {1.077,0.107,0.771},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Handwerkskunst E",
+            name = "Fertigkeiten Handwerkskunst E",
             pos   = {1.120,0.107,0.771},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Handwerkskunst M",
+            name = "Fertigkeiten Handwerkskunst M",
             pos   = {1.164,0.107,0.771},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Handwerkskunst L",
+            name = "Fertigkeiten Handwerkskunst L",
             pos   = {1.207,0.107,0.771},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Heilkunde G",
+            name = "Fertigkeiten Heilkunde G",
             pos   = {1.077,0.107,0.890},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Heilkunde E",
+            name = "Fertigkeiten Heilkunde E",
             pos   = {1.120,0.107,0.890},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Heilkunde M",
+            name = "Fertigkeiten Heilkunde M",
             pos   = {1.164,0.107,0.890},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Heilkunde L",
+            name = "Fertigkeiten Heilkunde L",
             pos   = {1.207,0.107,0.890},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Heimlichkeit G",
+            name = "Fertigkeiten Heimlichkeit G",
             pos   = {1.077,0.107,1.009},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Heimlichkeit E",
+            name = "Fertigkeiten Heimlichkeit E",
             pos   = {1.120,0.107,1.009},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Heimlichkeit M",
+            name = "Fertigkeiten Heimlichkeit M",
             pos   = {1.164,0.107,1.009},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Heimlichkeit L",
+            name = "Fertigkeiten Heimlichkeit L",
             pos   = {1.207,0.107,1.009},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Kenntnis 1 G",
+            name = "Fertigkeiten Kenntnis 1 G",
             pos   = {1.077,0.107,1.128},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Kenntnis 1 E",
+            name = "Fertigkeiten Kenntnis 1 E",
             pos   = {1.120,0.107,1.128},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Kenntnis 1 M",
+            name = "Fertigkeiten Kenntnis 1 M",
             pos   = {1.164,0.107,1.128},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Kenntnis 1 L",
+            name = "Fertigkeiten Kenntnis 1 L",
             pos   = {1.207,0.107,1.128},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Kenntnis 2 G",
+            name = "Fertigkeiten Kenntnis 2 G",
             pos   = {1.077,0.107,1.247},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Kenntnis 2 E",
+            name = "Fertigkeiten Kenntnis 2 E",
             pos   = {1.120,0.107,1.247},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Kenntnis 2 M",
+            name = "Fertigkeiten Kenntnis 2 M",
             pos   = {1.164,0.107,1.247},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Kenntnis 2 L",
+            name = "Fertigkeiten Kenntnis 2 L",
             pos   = {1.207,0.107,1.247},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Naturkunde G",
+            name = "Fertigkeiten Naturkunde G",
             pos   = {1.077,0.107,1.366},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Naturkunde E",
+            name = "Fertigkeiten Naturkunde E",
             pos   = {1.120,0.107,1.366},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Naturkunde M",
+            name = "Fertigkeiten Naturkunde M",
             pos   = {1.164,0.107,1.366},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Naturkunde L",
+            name = "Fertigkeiten Naturkunde L",
             pos   = {1.207,0.107,1.366},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Okkultismus G",
+            name = "Fertigkeiten Okkultismus G",
             pos   = {1.077,0.107,1.485},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Okkultismus E",
+            name = "Fertigkeiten Okkultismus E",
             pos   = {1.120,0.107,1.485},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Okkultismus M",
+            name = "Fertigkeiten Okkultismus M",
             pos   = {1.164,0.107,1.485},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Okkultismus L",
+            name = "Fertigkeiten Okkultismus L",
             pos   = {1.207,0.107,1.485},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Religionskunde G",
+            name = "Fertigkeiten Religionskunde G",
             pos   = {1.077,0.107,1.604},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Religionskunde E",
+            name = "Fertigkeiten Religionskunde E",
             pos   = {1.120,0.107,1.604},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Religionskunde M",
+            name = "Fertigkeiten Religionskunde M",
             pos   = {1.164,0.107,1.604},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Religionskunde L",
+            name = "Fertigkeiten Religionskunde L",
             pos   = {1.207,0.107,1.604},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Täuschung G",
+            name = "Fertigkeiten Täuschung G",
             pos   = {1.077,0.107,1.723},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Täuschung E",
+            name = "Fertigkeiten Täuschung E",
             pos   = {1.120,0.107,1.723},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Täuschung M",
+            name = "Fertigkeiten Täuschung M",
             pos   = {1.164,0.107,1.723},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Täuschung L",
+            name = "Fertigkeiten Täuschung L",
             pos   = {1.207,0.107,1.723},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Überlebenskunst G",
+            name = "Fertigkeiten Überlebenskunst G",
             pos   = {1.077,0.107,1.842},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Überlebenskunst E",
+            name = "Fertigkeiten Überlebenskunst E",
             pos   = {1.120,0.107,1.842},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Überlebenskunst M",
+            name = "Fertigkeiten Überlebenskunst M",
             pos   = {1.164,0.107,1.842},
             size  = 190,
             state = false,
             lockable = false
         },
         {
-            name = "Überlebenskunst L",
+            name = "Fertigkeiten Überlebenskunst L",
             pos   = {1.207,0.107,1.842},
             size  = 190,
             state = false,
@@ -1533,7 +1614,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Nahkampfangriff 1 Stärke Modifikator",
+            name = "Nahkampfangriff 1 Modifikator",
             pos    = {-0.492,0.107,-0.023},
             size   = 300,
             value  = 0,
@@ -1542,7 +1623,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Nahkampfangriff 1 Stärke Modifikator",
+            name = "Nahkampfangriff 1 Modifikator",
             pos    = {-0.492,0.107,-0.023},
             size   = 300,
             value  = 0,
@@ -1551,7 +1632,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Nahkampfangriff 1 Stärke Modifikator 2",
+            name = "Nahkampfangriff 1 Modifikator 2",
             pos    = {-1.298,0.107,0.143},
             size   = 300,
             value  = 0,
@@ -1587,7 +1668,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Nahkampfangriff 2 Stärke Modifikator",
+            name = "Nahkampfangriff 2 Modifikator",
             pos    = {-0.492,0.107,0.291},
             size   = 300,
             value  = 0,
@@ -1596,7 +1677,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Nahkampfangriff 2 Stärke Modifikator 2",
+            name = "Nahkampfangriff 2 Modifikator 2",
             pos    = {-1.298,0.107,0.457},
             size   = 300,
             value  = 0,
@@ -1632,7 +1713,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Nahkampfangriff 3 Stärke Modifikator",
+            name = "Nahkampfangriff 3 Modifikator",
             pos    = {-0.491,0.107,0.608},
             size   = 300,
             value  = 0,
@@ -1641,7 +1722,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Nahkampfangriff 3 Stärke Modifikator 2",
+            name = "Nahkampfangriff 3 Modifikator 2",
             pos    = {-1.298,0.107,0.772},
             size   = 300,
             value  = 0,
@@ -2010,7 +2091,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fertigkeiten Wahrnehmung gesamt",
+            name = "Wahrnehmung gesamt",
             pos    = {0.919,0.107,-0.688},
             size   = 370,
             value  = 0,
@@ -2019,7 +2100,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fertigkeiten Wahrnehmung Modifikator",
+            name = "Wahrnehmung Modifikator",
             pos    = {1.038,0.107,-0.580},
             size   = 250,
             value  = 0,
@@ -2028,7 +2109,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fertigkeiten Wahrnehmung Kompetenzbonus",
+            name = "Wahrnehmung Kompetenzbonus",
             pos    = {1.162,0.107,-0.580},
             size   = 250,
             value  = 0,
@@ -2037,7 +2118,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fertigkeiten Wahrnehmung GGSTD",
+            name = "Wahrnehmung GGSTD",
             pos    = {1.4655,0.107,-0.580},
             size   = 250,
             value  = 0,
@@ -3721,6 +3802,7 @@ end
 
 --Save function
 function updateSave()
+
     addiertAlles("Fertigkeiten Klassen-SG")
     addiertAlles("Fertigkeiten Akrobatik")
     addiertAlles("Fertigkeiten Arkane Künste")
@@ -3740,6 +3822,15 @@ function updateSave()
     addiertAlles("Fertigkeiten Religionskunde")
     addiertAlles("Fertigkeiten Täuschung")
     addiertAlles("Fertigkeiten Überlebenskunst")
+    addiertAlles("Fertigkeiten Akrobatik")
+    addiertAlles("Reflex")
+    addiertAlles("Willen")
+    addiertAlles("Zähigkeit")
+    addiertAlles("Wahrnehmung")
+    addiertAlles("Nahkampfangriff 1");
+    addiertAlles("Nahkampfangriff 2");
+    addiertAlles("Nahkampfangriff 3");
+
     if edited==false then
         edited=true
     end
@@ -4297,7 +4388,7 @@ end
 
 --Makes counters
 function createCounter()
-    print(spawnedButtonCount)
+    --print(spawnedButtonCount)
     for i, data in ipairs(CHARACTERSHEET.counter) do
         --Sets up display
         local displayNumber = spawnedButtonCount
@@ -4835,6 +4926,7 @@ function createTextbox()
 end
 
 function addiertAlles(namen)
+
     for i, data in ipairs(CHARACTERSHEET.counter) do
         if data.name == namen .. " gesamt" then
             kompetenzbonusRechner(namen)
@@ -4847,6 +4939,7 @@ end
 
 function sucheWert(namen,typ)
     for i, data in ipairs(CHARACTERSHEET.counter) do
+        --print(data.name)
         if tostring(data.name) == tostring(namen .. typ) then
             return data.value
         end
@@ -4854,17 +4947,32 @@ function sucheWert(namen,typ)
     return 0
 end
 
+output = ""
+
 function sucheKreuz(namen,typ)
+    local foundItem
     for i, data in ipairs(CHARACTERSHEET.checkbox) do
-        if tostring("Fertigkeiten " .. data.name) == tostring(namen .. typ) then
-            return data.state
+        output = output ..data.name .. " == namen:" ..  tostring(namen) .. " typ: " .. typ .. "\n"
+        if tostring(data.name) == tostring(namen .. typ) then
+        --if tostring(data.name) == tostring(namen .. typ) then
+            --print("Fertigkeiten " .. data.name .. " == namen:" ..  tostring(namen) .. " typ: " .. typ)
+            output = output .. "match"
+            foundItem = data.state
+            break;
         end
     end
+
+    --print(output)
+    output = ""
+
+    return foundItem
 end
 
 function kompetenzbonusRechner(namen)
     local value = 0
     local stufe = sucheWert("Stu","fe")
+
+    --print_table(CHARACTERSHEET.checkbox)
     if sucheKreuz(namen," G") then if stufe == 1 then value = 4 else value = stufe + 2 end
     elseif sucheKreuz(namen," E") then value = stufe + 4
     elseif sucheKreuz(namen," M") then value = stufe + 6
