@@ -1,0 +1,4882 @@
+--Set this to true while editing and false when you have finished
+disableSave = false
+--Remember to set this to false once you are done making changes
+--Then, after you save & apply it, save your game too
+
+--Color information for button text (r,g,b, values of 0-1)
+buttonFontColor = {0,0,0,1}
+--Color information for button background
+buttonColor = {1,1,1}
+--Change scale of button (Avoid changing if possible)
+buttonScale = {0.1,0.1,0.1}
+
+-- Placeholder Default Variables
+edited=false
+displayCol = {1,1,1} -- Default Display Color
+d4Count = 0
+d6Count = 0
+d8Count = 0
+d10Count = 0
+d12Count = 0
+playerName = ""
+total = 0
+totaladv = 0
+hitMod = 0
+dmgMod = 0
+attackName = "D&D 5e Attack Roller"
+saveTable = {}
+lockCheck = false
+--This is the button placement information
+defaultButtonData = {
+    dicerollers={
+        {
+            name="D4",
+            pos={-0.6,0.107,2.1},
+            height=200,
+            width=800,
+            fontsize=200,
+            dicenum  = 1,
+            dicetype = 4,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W4"
+        },
+        {
+            name="D6",
+            pos={-0.4,0.107,2.1},
+            height=200,
+            width=800,
+            fontsize=200,
+            dicenum  = 1,
+            dicetype = 6,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W6"
+        },
+        {
+            name="D8",
+            pos={-0.2,0.107,2.1},
+            height=200,
+            width=800,
+            fontsize=200,
+            dicenum  = 1,
+            dicetype = 8,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W8"
+        },
+        {
+            name="D10",
+            pos={0,0.107,2.1},
+            height=200,
+            width=800,
+            fontsize=200,
+            dicenum  = 1,
+            dicetype = 10,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W10"
+        },
+        {
+            name="D12",
+            pos={0.2,0.107,2.1},
+            height=200,
+            width=800,
+            fontsize=200,
+            dicenum  = 1,
+            dicetype = 12,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W12"
+        },
+        {
+            name="D20",
+            pos={0.4,0.107,2.1},
+            height=200,
+            width=800,
+            fontsize=200,
+            dicenum  = 1,
+            dicetype = 20,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W20"
+        },
+        {
+            name="D100",
+            pos={0.6,0.107,2.1},
+            height=200,
+            width=800,
+            fontsize=200,
+            dicenum  = 1,
+            dicetype = 100,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W100"
+        },
+    },
+    broadcastbutton={
+        {
+            name="Broadcast Button",
+            pos   = {0.,0.107,-2.1},
+            height  = 140,
+            width=2000,
+            lockable = true,
+            broadcast= true,
+            buttonindex=0
+        },
+    },
+    critbutton={
+        {
+            name="Crit Button",
+            pos   = {0.158,0.107,5.449},
+            size  = 120,
+            width = 600,
+            lockable = false,
+            crit= false,
+            buttonindex=0
+        },
+    },
+    eabutton={
+        {
+            name="EA Button",
+            pos   = {-1.55,0.01,-2.1},
+            height= 120,
+            width = 600,
+            lockable = true,
+            reroll= false,
+            buttonindex=0
+        },
+    },
+     --Add lockbuttons
+    lockbutton = {
+        --[[
+        pos   = the position (pasted from the helper tool)
+        size  = height/width/font_size for checkbox
+        state = default starting value for checkbox (true=locked, false=unlocked)
+        ]]
+        --Lockbutton
+        {
+            name="Lock Button",
+            pos   = {0,0.107,-2.05},
+            size  = 200,
+            state = false,
+            lockable= false
+        },
+        --end of lockbuttons
+    },
+    --Add checkboxes
+    checkbox = {
+        --[[
+        pos   = the position (pasted from the helper tool)
+        size  = height/width/font_size for checkbox
+        state = default starting value for checkbox (true=checked, false=not)
+        ]]
+        --Inspiration checkbox
+        {
+            name = "Ungerüstet G",
+            pos   = {-0.048,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Ungerüstet E",
+            pos   = {-0.005,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Ungerüstet M",
+            pos   = {0.038,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Ungerüstet L",
+            pos   = {0.081,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Leichte Rüstung G",
+            pos   = {0.153,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Leichte Rüstung E",
+            pos   = {0.196,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Leichte Rüstung M",
+            pos   = {0.240,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Leichte Rüstung L",
+            pos   = {0.283,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Mittelschwere Rüstung G",
+            pos   = {0.355,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Mittelschwere Rüstung E",
+            pos   = {0.398,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Mittelschwere Rüstung M",
+            pos   = {0.442,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Mittelschwere Rüstung L",
+            pos   = {0.485,0.107,-1.226},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Schwere Rüstung G",
+            pos   = {0.557,0.107,-1.224},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Schwere Rüstung E",
+            pos   = {0.600,0.107,-1.224},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Schwere Rüstung M",
+            pos   = {0.644,0.107,-1.224},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Schwere Rüstung L",
+            pos   = {0.687,0.107,-1.224},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Rüstungsklasse G",
+            pos   = {0.451,0.107,-1.364},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Rüstungsklasse E",
+            pos   = {0.494,0.107,-1.364},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Rüstungsklasse M",
+            pos   = {0.538,0.107,-1.364},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Rüstungsklasse L",
+            pos   = {0.581,0.107,-1.364},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Reflex G",
+            pos   = {-0.258,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Reflex E",
+            pos   = {-0.215,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Reflex M",
+            pos   = {-0.171,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Reflex L",
+            pos   = {-0.128,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Willen G",
+            pos   = {0.177,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Willen E",
+            pos   = {0.220,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Willen M",
+            pos   = {0.2635,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Willen L",
+            pos   = {0.3065,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zähigkeit G",
+            pos   = {0.6065,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zähigkeit E",
+            pos   = {0.6495,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zähigkeit M",
+            pos   = {0.6935,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zähigkeit L",
+            pos   = {0.7365,0.107,-0.54},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Wahrnehmung G",
+            pos   = {1.250,0.107,-0.587},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Wahrnehmung E",
+            pos   = {1.2925,0.107,-0.587},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Wahrnehmung M",
+            pos   = {1.3365,0.107,-0.587},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Wahrnehmung L",
+            pos   = {1.3795,0.107,-0.587},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Akrobatik G",
+            pos   = {1.077,0.107,-0.178},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Akrobatik E",
+            pos   = {1.120,0.107,-0.178},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Akrobatik M",
+            pos   = {1.164,0.107,-0.178},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Akrobatik L",
+            pos   = {1.207,0.107,-0.178},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Arkane Künste G",
+            pos   = {1.077,0.107,-0.06},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Arkane Künste E",
+            pos   = {1.120,0.107,-0.06},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Arkane Künste M",
+            pos   = {1.164,0.107,-0.06},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Arkane Künste L",
+            pos   = {1.207,0.107,-0.06},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Athletik G",
+            pos   = {1.077,0.107,0.058},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Athletik E",
+            pos   = {1.120,0.107,0.058},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Athletik M",
+            pos   = {1.164,0.107,0.058},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Athletik L",
+            pos   = {1.207,0.107,0.058},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Darbietung G",
+            pos   = {1.077,0.107,0.177},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Darbietung E",
+            pos   = {1.120,0.107,0.177},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Darbietung M",
+            pos   = {1.164,0.107,0.177},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Darbietung L",
+            pos   = {1.207,0.107,0.177},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Diebeskunst G",
+            pos   = {1.077,0.107,0.295},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Diebeskunst E",
+            pos   = {1.120,0.107,0.295},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Diebeskunst M",
+            pos   = {1.164,0.107,0.295},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Diebeskunst L",
+            pos   = {1.207,0.107,0.295},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Diplomatie G",
+            pos   = {1.077,0.107,0.414},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Diplomatie E",
+            pos   = {1.120,0.107,0.414},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Diplomatie M",
+            pos   = {1.164,0.107,0.414},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Diplomatie L",
+            pos   = {1.207,0.107,0.414},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Einschüchtern G",
+            pos   = {1.077,0.107,0.533},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Einschüchtern E",
+            pos   = {1.120,0.107,0.533},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Einschüchtern M",
+            pos   = {1.164,0.107,0.533},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Einschüchtern L",
+            pos   = {1.207,0.107,0.533},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Gesellschaftskunde G",
+            pos   = {1.077,0.107,0.653},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Gesellschaftskunde E",
+            pos   = {1.120,0.107,0.653},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Gesellschaftskunde M",
+            pos   = {1.164,0.107,0.653},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Gesellschaftskunde L",
+            pos   = {1.207,0.107,0.653},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Handwerkskunst G",
+            pos   = {1.077,0.107,0.771},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Handwerkskunst E",
+            pos   = {1.120,0.107,0.771},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Handwerkskunst M",
+            pos   = {1.164,0.107,0.771},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Handwerkskunst L",
+            pos   = {1.207,0.107,0.771},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Heilkunde G",
+            pos   = {1.077,0.107,0.890},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Heilkunde E",
+            pos   = {1.120,0.107,0.890},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Heilkunde M",
+            pos   = {1.164,0.107,0.890},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Heilkunde L",
+            pos   = {1.207,0.107,0.890},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Heimlichkeit G",
+            pos   = {1.077,0.107,1.009},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Heimlichkeit E",
+            pos   = {1.120,0.107,1.009},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Heimlichkeit M",
+            pos   = {1.164,0.107,1.009},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Heimlichkeit L",
+            pos   = {1.207,0.107,1.009},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Kenntnis 1 G",
+            pos   = {1.077,0.107,1.128},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Kenntnis 1 E",
+            pos   = {1.120,0.107,1.128},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Kenntnis 1 M",
+            pos   = {1.164,0.107,1.128},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Kenntnis 1 L",
+            pos   = {1.207,0.107,1.128},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Kenntnis 2 G",
+            pos   = {1.077,0.107,1.247},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Kenntnis 2 E",
+            pos   = {1.120,0.107,1.247},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Kenntnis 2 M",
+            pos   = {1.164,0.107,1.247},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Kenntnis 2 L",
+            pos   = {1.207,0.107,1.247},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Naturkunde G",
+            pos   = {1.077,0.107,1.366},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Naturkunde E",
+            pos   = {1.120,0.107,1.366},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Naturkunde M",
+            pos   = {1.164,0.107,1.366},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Naturkunde L",
+            pos   = {1.207,0.107,1.366},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Okkultismus G",
+            pos   = {1.077,0.107,1.485},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Okkultismus E",
+            pos   = {1.120,0.107,1.485},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Okkultismus M",
+            pos   = {1.164,0.107,1.485},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Okkultismus L",
+            pos   = {1.207,0.107,1.485},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Religionskunde G",
+            pos   = {1.077,0.107,1.604},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Religionskunde E",
+            pos   = {1.120,0.107,1.604},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Religionskunde M",
+            pos   = {1.164,0.107,1.604},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Religionskunde L",
+            pos   = {1.207,0.107,1.604},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Täuschung G",
+            pos   = {1.077,0.107,1.723},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Täuschung E",
+            pos   = {1.120,0.107,1.723},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Täuschung M",
+            pos   = {1.164,0.107,1.723},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Täuschung L",
+            pos   = {1.207,0.107,1.723},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Überlebenskunst G",
+            pos   = {1.077,0.107,1.842},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Überlebenskunst E",
+            pos   = {1.120,0.107,1.842},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Überlebenskunst M",
+            pos   = {1.164,0.107,1.842},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Überlebenskunst L",
+            pos   = {1.207,0.107,1.842},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Klassen-SG G",
+            pos   = {-0.877,0.107,-0.405},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Klassen-SG E",
+            pos   = {-0.833,0.107,-0.405},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Klassen-SG M",
+            pos   = {-0.788,0.107,-0.405},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Klassen-SG L",
+            pos   = {-0.745,0.107,-0.405},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 1 G",
+            pos   = {-0.2545,0.107,-0.023},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 1 E",
+            pos   = {-0.212,0.107,-0.023},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 1 M",
+            pos   = {-0.1675,0.107,-0.023},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 1 L",
+            pos   = {-0.1245,0.107,-0.023},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 1 H",
+            pos   = {-1.1845,0.107,0.081},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 1 S",
+            pos   = {-1.1845,0.107,0.122},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 1 W",
+            pos   = {-1.1845,0.107,0.163},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 2 G",
+            pos   = {-0.2545,0.107,0.291},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 2 E",
+            pos   = {-0.212,0.107,0.291},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 2 M",
+            pos   = {-0.1675,0.107,0.291},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 2 L",
+            pos   = {-0.1245,0.107,0.291},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 2 H",
+            pos   = {-1.1845,0.107,0.394},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 2 S",
+            pos   = {-1.1845,0.107,0.436},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 2 W",
+            pos   = {-1.1845,0.107,0.477},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 3 G",
+            pos   = {-0.2545,0.107,0.608},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 3 E",
+            pos   = {-0.212,0.107,0.608},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 3 M",
+            pos   = {-0.1675,0.107,0.608},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 3 L",
+            pos   = {-0.1245,0.107,0.608},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 3 H",
+            pos   = {-1.1845,0.107,0.711},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 3 S",
+            pos   = {-1.1845,0.107,0.752},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Nahkampfangriff 3 W",
+            pos   = {-1.1845,0.107,0.793},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 1 G",
+            pos   = {-0.254,0.107,1.008},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 1 E",
+            pos   = {-0.211,0.107,1.008},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 1 M",
+            pos   = {-0.167,0.107,1.008},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 1 L",
+            pos   = {-0.124,0.107,1.008},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 1 H",
+            pos   = {-1.1845,0.107,1.110},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 1 S",
+            pos   = {-1.1845,0.107,1.152},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 1 W",
+            pos   = {-1.1845,0.107,1.193},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 2 G",
+            pos   = {-0.254,0.107,1.316},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 2 E",
+            pos   = {-0.211,0.107,1.316},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 2 M",
+            pos   = {-0.167,0.107,1.316},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 2 L",
+            pos   = {-0.124,0.107,1.316},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 2 H",
+            pos   = {-1.1845,0.107,1.419},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 2 S",
+            pos   = {-1.1845,0.107,1.460},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 2 W",
+            pos   = {-1.1845,0.107,1.501},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 3 G",
+            pos   = {-0.254,0.107,1.624},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 3 E",
+            pos   = {-0.211,0.107,1.624},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 3 M",
+            pos   = {-0.167,0.107,1.624},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 3 L",
+            pos   = {-0.124,0.107,1.624},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 3 H",
+            pos   = {-1.1845,0.107,1.727},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 3 S",
+            pos   = {-1.1845,0.107,1.768},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fernkampfangriff 3 W",
+            pos   = {-1.1845,0.107,1.810},
+            size  = 130,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit einfachen Waffen G",
+            pos   = {-1.510,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit einfachen Waffen E",
+            pos   = {-1.467,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit einfachen Waffen M",
+            pos   = {-1.423,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit einfachen Waffen L",
+            pos   = {-1.380,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit Kriegswaffen G",
+            pos   = {-1.301,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit Kriegswaffen E",
+            pos   = {-1.258,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit Kriegswaffen M",
+            pos   = {-1.214,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit Kriegswaffen L",
+            pos   = {-1.1705,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit anderen Waffen 1 G",
+            pos   = {-1.0815,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit anderen Waffen 1 E",
+            pos   = {-1.0385,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit anderen Waffen 1 M",
+            pos   = {-0.9945,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit anderen Waffen 1 L",
+            pos   = {-0.951,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit anderen Waffen 2 G",
+            pos   = {-0.4895,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit anderen Waffen 2 E",
+            pos   = {-0.446,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit anderen Waffen 2 M",
+            pos   = {-0.402,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Umgang mit anderen Waffen 2 L",
+            pos   = {-0.359,0.107,2.021},
+            size  = 150,
+            state = false,
+            lockable = false
+        },
+        --End of checkboxes
+    },
+    --Add counters that have a + and - button
+    counter = {
+        --[[
+        pos    = the position (pasted from the helper tool)
+        size   = height/width/font_size for counter
+        value  = default starting value for counter
+        hideBG = if background of counter is hidden (true=hidden, false=not)
+        ]]
+        {
+            name = "Stufe",
+            pos    = {1.396,0.107,-1.854},
+            size   = 670,
+            value  = 1,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Heldenpunkte",
+            pos    = {1.397,0.107,-1.641},
+            size   = 520,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Stärke",
+            pos    = {-0.6675,0.107,-1.389},
+            size   = 380,
+            value  = 10,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Stärke Modifikator",
+            pos    = {-1.441,0.107,-1.389},
+            size   = 450,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Geschicklichkeit",
+            pos    = {-0.6675,0.107,-1.2375},
+            size   = 380,
+            value  = 10,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Geschicklichkeit Modifikator",
+            pos    = {-1.441,0.107,-1.2375},
+            size   = 450,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Konstitution",
+            pos    = {-0.6675,0.107,-1.087},
+            size   = 380,
+            value  = 10,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Konstitution Modifikator",
+            pos    = {-1.441,0.107,-1.087},
+            size   = 450,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Intelligenz",
+            pos    = {-0.6675,0.107,-0.937},
+            size   = 380,
+            value  = 10,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Intelligenz Modifikator",
+            pos    = {-1.441,0.107,-0.937},
+            size   = 450,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Weisheit",
+            pos    = {-0.6675,0.107,-0.7875},
+            size   = 380,
+            value  = 10,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Weisheit Modifikator",
+            pos    = {-1.441,0.107,-0.7875},
+            size   = 450,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Charisma",
+            pos    = {-0.6675,0.107,-0.6375},
+            size   = 380,
+            value  = 10,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Charisma Modifikator",
+            pos    = {-1.441,0.107,-0.6375},
+            size   = 450,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Bewegungsrate",
+            pos    = {-1.1135,0.107,-0.275},
+            size   = 600,
+            value  = 9,
+            hideBG = true,
+            lockable = true,
+            increment = 1.5
+        },
+        {
+            name = "Nahkampfangriff 1 GGSTD",
+            pos    = {-0.0265,0.107,-0.023},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 1 Kompetenzbonus",
+            pos    = {-0.352,0.107,-0.023},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 1 Stärke Modifikator",
+            pos    = {-0.492,0.107,-0.023},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 1 Stärke Modifikator",
+            pos    = {-0.492,0.107,-0.023},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 1 Stärke Modifikator 2",
+            pos    = {-1.298,0.107,0.143},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 1 gesamt",
+            pos    = {-0.722,0.107,-0.051},
+            size   = 480,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 2 GGSTD",
+            pos    = {-0.0265,0.107,0.291},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 2 Kompetenzbonus",
+            pos    = {-0.352,0.107,0.291},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 2 Stärke Modifikator",
+            pos    = {-0.492,0.107,0.291},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 2 Stärke Modifikator 2",
+            pos    = {-1.298,0.107,0.457},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 2 gesamt",
+            pos    = {-0.722,0.107,0.264},
+            size   = 480,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 3 GGSTD",
+            pos    = {-0.0265,0.107,0.608},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 3 Kompetenzbonus",
+            pos    = {-0.351,0.107,0.608},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 3 Stärke Modifikator",
+            pos    = {-0.491,0.107,0.608},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 3 Stärke Modifikator 2",
+            pos    = {-1.298,0.107,0.772},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Nahkampfangriff 3 gesamt",
+            pos    = {-0.722,0.107,0.580},
+            size   = 480,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 1 GGSTD",
+            pos    = {-0.0255,0.107,1.008},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 1 Kompetenzbonus",
+            pos    = {-0.350,0.107,1.008},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 1 Geschicklichkeit Modifikator",
+            pos    = {-0.490,0.107,1.008},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 1 Geschicklichkeit Modifikator 2",
+            pos    = {-1.297,0.107,1.173},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 1 gesamt",
+            pos    = {-0.724,0.107,1.004},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 2 GGSTD",
+            pos    = {-0.0255,0.107,1.316},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 2 Kompetenzbonus",
+            pos    = {-0.350,0.107,1.316},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 2 Geschicklichkeit Modifikator",
+            pos    = {-0.490,0.107,1.316},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 2 Geschicklichkeit Modifikator 2",
+            pos    = {-1.297,0.107,1.482},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 2 gesamt",
+            pos    = {-0.724,0.107,1.313},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 3 GGSTD",
+            pos    = {-0.0255,0.107,1.624},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 3 Kompetenzbonus",
+            pos    = {-0.350,0.107,1.624},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff Geschicklichkeit 3 Modifikator",
+            pos    = {-0.490,0.107,1.624},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff Geschicklichkeit 3 Modifikator 2",
+            pos    = {-1.297,0.107,1.790},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fernkampfangriff 3 gesamt",
+            pos    = {-0.724,0.107,1.621},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Reflex gesamt",
+            pos    = {-0.276,0.107,-0.821},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Willen gesamt",
+            pos    = {0.161,0.107,-0.821},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zähigkeit gesamt",
+            pos    = {0.5925,0.107,-0.821},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Reflex Kompetenzbonus",
+            pos    = {-0.200,0.107,-0.679},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Willen Kompetenzbonus",
+            pos    = {0.2375,0.107,-0.679},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zähigkeit Kompetenzbonus",
+            pos    = {0.669,0.107,-0.679},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Reflex Modifikator",
+            pos    = {-0.369,0.107,-0.679},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Willen Modifikator",
+            pos    = {0.0685,0.107,-0.679},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zähigkeit Modifikator",
+            pos    = {0.500,0.107,-0.679},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Reflex GGSTD",
+            pos    = {-0.369,0.107,-0.545},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Willen GGSTD",
+            pos    = {0.0685,0.107,-0.545},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zähigkeit GGSTD",
+            pos    = {0.500,0.107,-0.545},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse GGSTD",
+            pos    = {0.6785,0.107,-1.369},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse gesamt",
+            pos    = {-0.276,0.107,-1.337},
+            size   = 500,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse Modifikator",
+            pos    = {0.062,0.107,-1.365},
+            size   = 250,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse Max",
+            pos    = {0.222,0.107,-1.365},
+            size   = 250,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse Kompetenzbonus",
+            pos    = {0.353,0.107,-1.365},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse Härte",
+            pos    = {0.258,0.107,-1.090},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse Max. TP",
+            pos    = {0.436,0.107,-1.090},
+            size   = 250,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse BW",
+            pos    = {0.536,0.107,-1.090},
+            size   = 150,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse Aktuelle TP",
+            pos    = {0.698,0.107,-1.090},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Rüstungsklasse Schild",
+            pos    = {0.0775,0.107,-1.105},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Trefferpkt Sterbend",
+            pos    = {1.2775,0.107,-1.200},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Trefferpkt Verwundet",
+            pos    = {1.435,0.107,-1.200},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Wahrnehmung gesamt",
+            pos    = {0.919,0.107,-0.688},
+            size   = 370,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Wahrnehmung Modifikator",
+            pos    = {1.038,0.107,-0.580},
+            size   = 250,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Wahrnehmung Kompetenzbonus",
+            pos    = {1.162,0.107,-0.580},
+            size   = 250,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Wahrnehmung GGSTD",
+            pos    = {1.4655,0.107,-0.580},
+            size   = 250,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Akrobatik gesamt",
+            pos    = {0.644,0.107,-0.187},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Arkane Künste gesamt",
+            pos    = {0.644,0.107,-0.067},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Athletik gesamt",
+            pos    = {0.644,0.107,0.052},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Darbietung gesamt",
+            pos    = {0.644,0.107,0.171},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diebeskunst gesamt",
+            pos    = {0.644,0.107,0.290},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diplomatie gesamt",
+            pos    = {0.644,0.107,0.409},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Einschüchtern gesamt",
+            pos    = {0.644,0.107,0.528},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Gesellschaftskunde gesamt",
+            pos    = {0.644,0.107,0.647},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Handwerkskunst gesamt",
+            pos    = {0.644,0.107,0.765},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heilkunde gesamt",
+            pos    = {0.644,0.107,0.884},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heimlichkeit gesamt",
+            pos    = {0.644,0.107,1.003},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Kenntnis 1 gesamt",
+            pos    = {0.644,0.107,1.122},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Kenntnis 2 gesamt",
+            pos    = {0.644,0.107,1.241},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Naturkunde gesamt",
+            pos    = {0.644,0.107,1.359},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Okkultismus gesamt",
+            pos    = {0.644,0.107,1.478},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Religionskunde gesamt",
+            pos    = {0.644,0.107,1.596},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Täuschung gesamt",
+            pos    = {0.644,0.107,1.715},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Überlebenskunst gesamt",
+            pos    = {0.644,0.107,1.833},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Klassen-SG gesamt",
+            pos    = {-1.441,0.107,-0.417},
+            size   = 450,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Akrobatik Modifikator",
+            pos    = {0.8325,0.107,-0.183},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Arkane Künste Modifikator",
+            pos    = {0.8325,0.107,-0.063},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Athletik Modifikator",
+            pos    = {0.8325,0.107,0.056},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Darbietung Modifikator",
+            pos    = {0.8325,0.107,0.175},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diebeskunst Modifikator",
+            pos    = {0.8325,0.107,0.294},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diplomatie Modifikator",
+            pos    = {0.8325,0.107,0.413},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Einschüchtern Modifikator",
+            pos    = {0.8325,0.107,0.532},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Gesellschaftskunde Modifikator",
+            pos    = {0.8325,0.107,0.651},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Handwerkskunst Modifikator",
+            pos    = {0.8325,0.107,0.769},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heilkunde Modifikator",
+            pos    = {0.8325,0.107,0.888},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heimlichkeit Modifikator",
+            pos    = {0.8325,0.107,1.007},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Kenntnis 1 Modifikator",
+            pos    = {0.8325,0.107,1.126},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Kenntnis 2 Modifikator",
+            pos    = {0.8325,0.107,1.245},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Naturkunde Modifikator",
+            pos    = {0.8325,0.107,1.363},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Okkultismus Modifikator",
+            pos    = {0.8325,0.107,1.482},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Religionskunde Modifikator",
+            pos    = {0.8325,0.107,1.600},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Täuschung Modifikator",
+            pos    = {0.8325,0.107,1.719},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Überlebenskunst Modifikator",
+            pos    = {0.8325,0.107,1.837},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Klassen-SG Modifikator",
+            pos    = {-1.1135,0.107,-0.405},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Akrobatik Kompetenzbonus",
+            pos    = {0.979,0.107,-0.183},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Arkane Künste Kompetenzbonus",
+            pos    = {0.979,0.107,-0.063},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Athletik Kompetenzbonus",
+            pos    = {0.979,0.107,0.056},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Darbietung Kompetenzbonus",
+            pos    = {0.979,0.107,0.175},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diebeskunst Kompetenzbonus",
+            pos    = {0.979,0.107,0.294},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diplomatie Kompetenzbonus",
+            pos    = {0.979,0.107,0.413},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Einschüchtern Kompetenzbonus",
+            pos    = {0.979,0.107,0.532},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Gesellschaftskunde Kompetenzbonus",
+            pos    = {0.979,0.107,0.651},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Handwerkskunst Kompetenzbonus",
+            pos    = {0.979,0.107,0.769},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heilkunde Kompetenzbonus",
+            pos    = {0.979,0.107,0.888},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heimlichkeit Kompetenzbonus",
+            pos    = {0.979,0.107,1.007},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Kenntnis 1 Kompetenzbonus",
+            pos    = {0.979,0.107,1.126},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Kenntnis 2 Kompetenzbonus",
+            pos    = {0.979,0.107,1.245},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Naturkunde Kompetenzbonus",
+            pos    = {0.979,0.107,1.363},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Okkultismus Kompetenzbonus",
+            pos    = {0.979,0.107,1.482},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Religionskunde Kompetenzbonus",
+            pos    = {0.979,0.107,1.600},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Täuschung Kompetenzbonus",
+            pos    = {0.979,0.107,1.719},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Überlebenskunst Kompetenzbonus",
+            pos    = {0.979,0.107,1.837},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Klassen-SG Kompetenzbonus",
+            pos    = {-0.973,0.107,-0.405},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Akrobatik Rüstung",
+            pos    = {1.4515,0.107,-0.183},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Akrobatik GGSTD",
+            pos    = {1.3045,0.107,-0.183},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Arkane Künste GGSTD",
+            pos    = {1.3045,0.107,-0.063},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Athletik Rüstung",
+            pos    = {1.4515,0.107,0.056},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Athletik GGSTD",
+            pos    = {1.3045,0.107,0.056},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Darbietung GGSTD",
+            pos    = {1.3045,0.107,0.175},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diebeskunst Rüstung",
+            pos    = {1.4515,0.107,0.294},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diebeskunst GGSTD",
+            pos    = {1.3045,0.107,0.294},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Diplomatie GGSTD",
+            pos    = {1.3045,0.107,0.413},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Einschüchtern GGSTD",
+            pos    = {1.3045,0.107,0.532},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Gesellschaftskunde GGSTD",
+            pos    = {1.3045,0.107,0.651},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Handwerkskunst GGSTD",
+            pos    = {1.3045,0.107,0.769},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heilkunde GGSTD",
+            pos    = {1.3045,0.107,0.888},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heimlichkeit Rüstung",
+            pos    = {1.4515,0.107,1.007},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Heimlichkeit GGSTD",
+            pos    = {1.3045,0.107,1.007},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Kenntnis 1 GGSTD",
+            pos    = {1.3045,0.107,1.126},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Kenntnis 2 GGSTD",
+            pos    = {1.3045,0.107,1.245},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Naturkunde GGSTD",
+            pos    = {1.3045,0.107,1.363},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Okkultismus GGSTD",
+            pos    = {1.3045,0.107,1.482},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Religionskunde GGSTD",
+            pos    = {1.3045,0.107,1.600},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Täuschung GGSTD",
+            pos    = {1.3045,0.107,1.719},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Überlebenskunst GGSTD",
+            pos    = {1.3045,0.107,1.837},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fertigkeiten Klassen-SG GGSTD",
+            pos    = {-0.650,0.107,-0.405},
+            size   = 300,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+    },
+    --Add editable text boxes
+    textbox = {
+        --First textbox
+        {
+            name = "Charaktername",
+            pos       = {-0.352,0.107,-1.879},
+            rows      = 2,
+            width     = 5200,
+            font_size = 395,
+            label     = "Charaktername",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Spielername",
+            pos       = {-0.352,0.107,-1.700},
+            rows      = 1,
+            width     = 5200,
+            font_size = 340,
+            label     = "(Spielername)",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Erfahrungspunkte",
+            pos       = {-0.232,0.107,-1.607},
+            rows      = 1,
+            width     = 4100,
+            font_size = 340,
+            label     = "0000 Erfahrungspunkte",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Klasse",
+            pos       = {0.725,0.107,-1.742},
+            rows      = 1,
+            width     = 4870,
+            font_size = 250,
+            label     = "(Klasse)",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Hintergrund",
+            pos       = {0.725,0.107,-1.844},
+            rows      = 1,
+            width     = 4870,
+            font_size = 250,
+            label     = "(Hintergrund)",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Abstammung und Herkunft",
+            pos       = {0.725,0.107,-1.949},
+            rows      = 1,
+            width     = 4870,
+            font_size = 250,
+            label     = "(Abstammung), (Herkunft)",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Gottheit",
+            pos       = {0.810,0.107,-1.598},
+            rows      = 1,
+            width     = 4050,
+            font_size = 250,
+            label     = "(Gottheit)",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Kategorien",
+            pos       = {0.947,0.107,-1.656},
+            rows      = 1,
+            width     = 2730,
+            font_size = 120,
+            label     = "(Kategorien)",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Gesinnung",
+            pos       = {0.520,0.107,-1.656},
+            rows      = 1,
+            width     = 1190,
+            font_size = 120,
+            label     = "(Gesinnung)",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Größe",
+            pos       = {0.298,0.107,-1.656},
+            rows      = 1,
+            width     = 770,
+            font_size = 120,
+            label     = "(Größe)",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Maximale Trefferpunkte",
+            pos       = {0.950,0.107,-1.454},
+            rows      = 1,
+            width     = 500,
+            font_size = 300,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 1",
+            pos       = {1.126,0.107,-1.351},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 2",
+            pos       = {1.038,0.107,-1.351},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 3",
+            pos       = {1.126,0.107,-1.301},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 4",
+            pos       = {1.038,0.107,-1.301},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 5",
+            pos       = {1.126,0.107,-1.251},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 6",
+            pos       = {1.038,0.107,-1.251},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 7",
+            pos       = {1.126,0.107,-1.201},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 8",
+            pos       = {1.038,0.107,-1.201},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 9",
+            pos       = {0.950,0.107,-1.201},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 10",
+            pos       = {0.950,0.107,-1.301},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Aktuelle Trefferpunkte 11",
+            pos       = {0.950,0.107,-1.251},
+            rows      = 1,
+            width     = 400,
+            font_size = 200,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Temporäre Trefferpunkte 1",
+            pos       = {1.366,0.107,-1.381},
+            rows      = 1,
+            width     = 1400,
+            font_size = 130,
+            label     = "Temp. Trefferpunkte 1",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Temporäre Trefferpunkte 2",
+            pos       = {1.366,0.107,-1.351},
+            rows      = 1,
+            width     = 1400,
+            font_size = 130,
+            label     = "Temp. Trefferpunkte 2",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Temporäre Trefferpunkte 3",
+            pos       = {1.366,0.107,-1.321},
+            rows      = 1,
+            width     = 1400,
+            font_size = 130,
+            label     = "Temp. Trefferpunkte 3",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Resistenzen & Immunitäten 3",
+            pos       = {1.199,0.107,-1.049},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Resistenzen & Immunitäten 3",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Resistenzen & Immunitäten 2",
+            pos       = {1.199,0.107,-1.074},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Resistenzen & Immunitäten 2",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Resistenzen & Immunitäten 1",
+            pos       = {1.199,0.107,-1.099},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Resistenzen & Immunitäten 1",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Resistenzen & Immunitäten 4",
+            pos       = {1.199,0.107,-1.024},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Resistenzen & Immunitäten 4",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Resistenzen & Immunitäten 5",
+            pos       = {1.199,0.107,-0.999},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Resistenzen & Immunitäten 5",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zustand 3",
+            pos       = {1.199,0.107,-0.865},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Zustand 3",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zustand 2",
+            pos       = {1.199,0.107,-0.890},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Zustand 2",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zustand 1",
+            pos       = {1.199,0.107,-0.915},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Zustand 1",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zustand 4",
+            pos       = {1.199,0.107,-0.840},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Zustand 4",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zustand 5",
+            pos       = {1.199,0.107,-0.815},
+            rows      = 1,
+            width     = 3000,
+            font_size = 100,
+            label     = "Zustand 5",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Sinne 2",
+            pos       = {1.2245,0.107,-0.431},
+            rows      = 1,
+            width     = 2750,
+            font_size = 130,
+            label     = "Sinne 2",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Sinne 1",
+            pos       = {1.2245,0.107,-0.461},
+            rows      = 1,
+            width     = 2750,
+            font_size = 130,
+            label     = "Sinne 1",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Sinne 3",
+            pos       = {1.2245,0.107,-0.401},
+            rows      = 1,
+            width     = 2750,
+            font_size = 130,
+            label     = "Sinne 3",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zähigkeit Notizen 2",
+            pos       = {0.553,0.107,-0.435},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Zähigkeit Notizen 2",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zähigkeit Notizen 1",
+            pos       = {0.553,0.107,-0.463},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Zähigkeit Notizen 1",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zähigkeit Notizen 3",
+            pos       = {0.553,0.107,-0.407},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Zähigkeit Notizen 3",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Reflex Notizen 2",
+            pos       = {-0.261,0.107,-0.435},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Reflex Notizen 2",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Reflex Notizen 1",
+            pos       = {-0.261,0.107,-0.463},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Reflex Notizen 1",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Reflex Notizen 3",
+            pos       = {-0.261,0.107,-0.407},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Reflex Notizen 3",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Willen Notizen 2",
+            pos       = {0.147,0.107,-0.435},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Willen Notizen 2",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Willen Notizen 1",
+            pos       = {0.147,0.107,-0.463},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Willen Notizen 1",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Willen Notizen 3",
+            pos       = {0.147,0.107,-0.407},
+            rows      = 1,
+            width     = 1700,
+            font_size = 120,
+            label     = "Willen Notizen 3",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Bewegungsarten & Notizen 2",
+            pos       = {-0.379,0.107,-0.261},
+            rows      = 1,
+            width     = 4100,
+            font_size = 100,
+            label     = "Bewegungsarten & Notizen 2",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Bewegungsarten & Notizen 1",
+            pos       = {-0.379,0.107,-0.283},
+            rows      = 1,
+            width     = 4100,
+            font_size = 100,
+            label     = "Bewegungsarten & Notizen 1",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Bewegungsarten & Notizen 3",
+            pos       = {-0.379,0.107,-0.239},
+            rows      = 1,
+            width     = 4100,
+            font_size = 100,
+            label     = "Bewegungsarten & Notizen 3",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Waffe 1",
+            pos       = {-1.189,0.107,-0.0355},
+            rows      = 1,
+            width     = 3200,
+            font_size = 350,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Würfel 1",
+            pos       = {-1.463,0.107,0.137},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Würfel-Speziell 1",
+            pos       = {-1.026,0.107,0.137},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Sonstiges 1",
+            pos       = {-0.757,0.107,0.136},
+            rows      = 2,
+            width     = 1700,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Kategorien 1",
+            pos       = {-0.259,0.107,0.136},
+            rows      = 2,
+            width     = 2800,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Waffe 2",
+            pos       = {-1.189,0.107,0.279},
+            rows      = 1,
+            width     = 3200,
+            font_size = 350,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Würfel 2",
+            pos       = {-1.463,0.107,0.451},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Würfel-Speziell 2",
+            pos       = {-1.026,0.107,0.451},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Sonstiges 2",
+            pos       = {-0.757,0.107,0.450},
+            rows      = 2,
+            width     = 1700,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Kategorien 2",
+            pos       = {-0.259,0.107,0.450},
+            rows      = 2,
+            width     = 2800,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Waffe 3",
+            pos       = {-1.189,0.107,0.596},
+            rows      = 1,
+            width     = 3200,
+            font_size = 350,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Würfel 3",
+            pos       = {-1.463,0.107,0.767},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Würfel-Speziell 3",
+            pos       = {-1.026,0.107,0.767},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Sonstiges 3",
+            pos       = {-0.757,0.107,0.7665},
+            rows      = 2,
+            width     = 1700,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Nahkampfangriff Kategorien 3",
+            pos       = {-0.259,0.107,0.7665},
+            rows      = 2,
+            width     = 2800,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Waffe 1",
+            pos       = {-1.189,0.107,0.995},
+            rows      = 1,
+            width     = 3200,
+            font_size = 350,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Würfel 2",
+            pos       = {-1.463,0.107,1.167},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Würfel-Speziell 2",
+            pos       = {-1.026,0.107,1.167},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Sonstiges 1",
+            pos       = {-0.757,0.107,1.166},
+            rows      = 2,
+            width     = 1700,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Kategorien 1",
+            pos       = {-0.259,0.107,1.166},
+            rows      = 2,
+            width     = 2800,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Waffe 2",
+            pos       = {-1.189,0.107,1.303},
+            rows      = 1,
+            width     = 3200,
+            font_size = 350,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Würfel 2",
+            pos       = {-1.463,0.107,1.475},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Würfel-Speziell 2",
+            pos       = {-1.026,0.107,1.475},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Sonstiges 2",
+            pos       = {-0.757,0.107,1.474},
+            rows      = 2,
+            width     = 1700,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Kategorien 2",
+            pos       = {-0.259,0.107,1.474},
+            rows      = 2,
+            width     = 2800,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Waffe 3",
+            pos       = {-1.189,0.107,1.611},
+            rows      = 1,
+            width     = 3200,
+            font_size = 350,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Würfel 3",
+            pos       = {-1.463,0.107,1.7845},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Würfel-Speziell 3",
+            pos       = {-1.026,0.107,1.7845},
+            rows      = 1,
+            width     = 580,
+            font_size = 230,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Sonstiges 3",
+            pos       = {-0.757,0.107,1.782},
+            rows      = 2,
+            width     = 1700,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fernkampfangriff Kategorien 3",
+            pos       = {-0.259,0.107,1.782},
+            rows      = 2,
+            width     = 2800,
+            font_size = 150,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+        name = "Andere Waffe 1",
+        pos       = {-0.732,0.107,1.990},
+        rows      = 2,
+        width     = 1700,
+        font_size = 185,
+        label     = "",
+        value     = "",
+        alignment = 3,
+        lockable = true
+        },
+        {
+        name = "Andere Waffe 2",
+        pos       = {-0.1395,0.107,1.990},
+        rows      = 2,
+        width     = 1700,
+        font_size = 185,
+        label     = "",
+        value     = "",
+        alignment = 3,
+        lockable = true
+        },
+        {
+        name = "Kenntnis 1",
+        pos       = {0.210,0.107,1.113},
+        rows      = 2,
+        width     = 1050,
+        font_size = 145,
+        label     = "",
+        value     = "",
+        alignment = 3,
+        lockable = true
+        },
+        {
+        name = "Kenntnis 2",
+        pos       = {0.210,0.107,1.236},
+        rows      = 2,
+        width     = 1050,
+        font_size = 145,
+        label     = "",
+        value     = "",
+        alignment = 3,
+        lockable = true
+        },
+        {
+        name = "Sprachen",
+        pos       = {0.807,0.107,2.005},
+        rows      = 2,
+        width     = 6900,
+        font_size = 170,
+        label     = "",
+        value     = "",
+        alignment = 3,
+        lockable = true
+        },
+    }
+}
+
+--Lua beyond this point, I recommend doing something more fun with your life
+
+function onSave()
+    if edited ==true then
+        saved_data = JSON.encode(CHARACTERSHEET)
+        if disableSave==true then saved_data="" end
+        self.script_state = saved_data
+        edited=false
+    end
+
+end
+
+--Save function
+function updateSave()
+    addiertAlles("Fertigkeiten Klassen-SG")
+    addiertAlles("Fertigkeiten Akrobatik")
+    addiertAlles("Fertigkeiten Arkane Künste")
+    addiertAlles("Fertigkeiten Athletik")
+    addiertAlles("Fertigkeiten Darbietung")
+    addiertAlles("Fertigkeiten Diebeskunst")
+    addiertAlles("Fertigkeiten Diplomatie")
+    addiertAlles("Fertigkeiten Einschüchtern")
+    addiertAlles("Fertigkeiten Gesellschaftskunde")
+    addiertAlles("Fertigkeiten Handwerkskunst")
+    addiertAlles("Fertigkeiten Heilkunde")
+    addiertAlles("Fertigkeiten Heimlichkeit")
+    addiertAlles("Fertigkeiten Kenntnis 1")
+    addiertAlles("Fertigkeiten Kenntnis 2")
+    addiertAlles("Fertigkeiten Naturkunde")
+    addiertAlles("Fertigkeiten Okkultismus")
+    addiertAlles("Fertigkeiten Religionskunde")
+    addiertAlles("Fertigkeiten Täuschung")
+    addiertAlles("Fertigkeiten Überlebenskunst")
+    if edited==false then
+        edited=true
+    end
+    -- saved_data = JSON.encode(CHARACTERSHEET)
+    -- if disableSave==true then saved_data="" end
+    -- self.script_state = saved_data
+end
+
+--Startup procedure
+function onLoad(saved_data)
+    if disableSave==true then saved_data="" end
+    if saved_data ~= "" then
+        local loaded_data = JSON.decode(saved_data)
+        CHARACTERSHEET = loaded_data
+    else
+        CHARACTERSHEET = defaultButtonData
+    end
+
+    spawnedButtonCount = 0
+    spawnedInputCount = 0
+    lockablebutton ={}
+    lockableinput = {}
+    createLockbutton()
+    createBroadcastbutton()
+    createEAbutton()
+    createCheckbox()
+    createCounter()
+    creatediceButtons()
+    createTextbox()
+    math.randomseed(os.time()) -- Makes our random rolls much more random
+end
+
+--Click functions for buttons
+-- Do Nuffin
+function singleD()--[[The do nothing function for buttons with no use/display only.]]end
+
+function select_Broadcast(mestype,message,fontcolor,playercolor,target)
+    if target =="All" and mestype=="Print" then
+        printToAll(message,fontcolor)
+    elseif target=="All" and mestype=="Broadcast" then
+        broadcastToAll(message,fontcolor)
+    elseif target=="DM" and mestype=="Print" and playercolor ~= "Black" and Player["Black"].seated then
+        printToColor(message,playercolor,fontcolor)
+        printToColor(message,"Black",fontcolor)
+    elseif target=="DM" and mestype=="Broadcast" and playercolor ~= "Black" and Player["Black"].seated then
+        broadcastToColor(message,playercolor,fontcolor)
+        broadcastToColor(message,"Black",fontcolor)
+    elseif target=="DM" and mestype=="Print" then
+        printToColor(message,playercolor,fontcolor)
+    elseif target=="DM" and mestype=="Broadcast" then
+        broadcastToColor(message,playercolor,fontcolor)
+    end
+end
+
+--Roll Check
+function rollCheck(color, obj, tableIndex) -- Roll Check Function
+    updateRandomSeed()
+    displayCol = getColor(obj) -- Replaces default color with player color
+    playerName = Player[obj].steam_name -- Replaces default
+    local atkRoll = math.random(20) -- Gets First d20
+    local atkRollAdv = math.random(20) -- Gets Second d20
+    local target="All"
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+
+    --prints results
+    select_Broadcast("Print","_____________________________", displayCol,obj,target)
+    select_Broadcast("Print","                              ", displayCol,obj,target)
+    select_Broadcast("Print","[b]"..playerName.." rolls "..CHARACTERSHEET.abilitycounter[tableIndex].ability.."[/b]", displayCol,obj,target)
+    select_Broadcast("Print","[i]** Original Roll: ("..atkRoll.. " | "..atkRollAdv..") Modifier Added: ("..CHARACTERSHEET.abilitycounter[tableIndex].value..")[/i]", displayCol,obj,target)
+    --add modifier
+    atkRoll = atkRoll + CHARACTERSHEET.abilitycounter[tableIndex].value
+    atkRollAdv = atkRollAdv + CHARACTERSHEET.abilitycounter[tableIndex].value
+    --broadcast summary
+    select_Broadcast("Broadcast",playerName.." rolled [u]("..atkRoll.. " | "..atkRollAdv..")[/u] as "..CHARACTERSHEET.abilitycounter[tableIndex].ability.."!", displayCol,obj,target)
+end
+
+--Roll to Hit
+function rollHit(color, obj, tableIndex) -- Roll to Hit Function
+    updateRandomSeed()
+    displayCol = getColor(obj) -- Replaces default color with player color
+    playerName = Player[obj].steam_name -- Replaces default
+    local textboxIndex = tableIndex  --gets attack name index
+    local atkRoll = math.random(20) -- Gets First d20
+    local atkRollAdv = math.random(20) -- Gets Second d20
+    local atkRollEA = math.random(20)
+    local atkDisp=""
+    local atkDispAdv=""
+    local atkDispEA=""
+
+    if atkRoll==1 then
+        atkDisp="*FAIL!*"
+    elseif atkRoll==20 then
+        atkDisp="*CRIT!*"
+    end
+
+    if atkRollAdv==1 then
+        atkDispAdv="*FAIL!*"
+    elseif atkRollAdv==20 then
+        atkDispAdv="*CRIT!*"
+    end
+
+    if atkRollEA==1 then
+        atkDispEA="*FAIL!*"
+    elseif atkRollEA==20 then
+        atkDispEA="*CRIT!*"
+    end
+
+    local target="All"
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+    --prints results
+    select_Broadcast("Print","_____________________________", displayCol,obj,target)
+    select_Broadcast("Print","                              ", displayCol,obj,target)
+    select_Broadcast("Print","[b]"..playerName.."'s Roll to HIT[/b]", displayCol,obj,target)
+    if CHARACTERSHEET.eabutton[1].reroll==true then
+        select_Broadcast("Print","[i]** Original Roll: ("..atkRoll..atkDisp.. " | "..atkRollAdv..atkDispAdv.." | "..atkRollEA..atkDispEA..") Modifier Added: ("..CHARACTERSHEET.attackcounter[tableIndex].value..")[/i]", displayCol,obj,target)
+    else
+        select_Broadcast("Print","[i]** Original Roll: ("..atkRoll..atkDisp.. " | "..atkRollAdv..atkDispAdv..") Modifier Added: ("..CHARACTERSHEET.attackcounter[tableIndex].value..")[/i]", displayCol,obj,target)
+    end
+
+    --add modifier
+    atkRoll = atkRoll + CHARACTERSHEET.attackcounter[tableIndex].value
+    atkRollAdv = atkRollAdv + CHARACTERSHEET.attackcounter[tableIndex].value
+    atkRollEA=atkRollEA + CHARACTERSHEET.attackcounter[tableIndex].value
+
+    --broadcast summary
+    if CHARACTERSHEET.eabutton[1].reroll==true then
+        select_Broadcast("Broadcast",playerName.." rolled [u]("..atkRoll..atkDisp.." | "..atkRollAdv..atkDispAdv.." | "..atkRollEA..atkDispEA..")[/u] to hit with their "..CHARACTERSHEET.attacktextbox[textboxIndex].value.."!", displayCol,obj,target)
+    else
+        select_Broadcast("Broadcast",playerName.." rolled [u]("..atkRoll..atkDisp.." | "..atkRollAdv..atkDispAdv..")[/u] to hit with their "..CHARACTERSHEET.attacktextbox[textboxIndex].value.."!", displayCol,obj,target)
+    end
+end
+
+function rollDice(color, obj, tableIndex)
+    displayCol = getColor(obj)
+    playerName = Player[obj].steam_name
+    updateRandomSeed()
+    local target="All"
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+    select_Broadcast("Print","_____________________________", displayCol,obj,target)
+    select_Broadcast("Print","                              ", displayCol,obj,target)
+    select_Broadcast("Print","[b]"..playerName.."'s Wurf[/b]", displayCol,obj,target)
+    --get total
+    dCount = CHARACTERSHEET.dicerollers[tableIndex].dicenum
+    dType = CHARACTERSHEET.dicerollers[tableIndex].dicetype
+    dmgMod = CHARACTERSHEET.dicerollers[tableIndex].dammod
+    diceDealer(dCount, dType,displayCol,obj,target)
+    --Modifer
+    total = total
+    totaladv = totaladv + dmgMod
+    select_Broadcast("Broadcast",playerName.." würfelt [u]("..total..")[/u]! ", displayCol,obj,target)
+    total = 0
+    totaladv = 0
+
+end
+
+-- Roll the Damage
+function rollDamage(color, obj, tableIndex)
+    displayCol = getColor(obj)
+    playerName = Player[obj].steam_name
+    local textboxIndex = tableIndex
+    updateRandomSeed()
+    local target="All"
+    local critical=""
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+    if CHARACTERSHEET.critbutton[1].crit==true then
+        dCount=CHARACTERSHEET.damagecounter[tableIndex].dicenum*2
+        CHARACTERSHEET.critbutton[1].crit=false
+        self.editButton({index=CHARACTERSHEET.critbutton[1].buttonindex, label="Critical?", color=buttonColor})
+        critical="*CRITICAL*"
+    else
+        dCount = CHARACTERSHEET.damagecounter[tableIndex].dicenum
+    end
+    select_Broadcast("Print","_____________________________", displayCol,obj,target)
+    select_Broadcast("Print","                              ", displayCol,obj,target)
+    select_Broadcast("Print","[b]"..playerName.."'s "..critical.." Damage Roll[/b]", displayCol,obj,target)
+    --get total
+    dType = CHARACTERSHEET.damagecounter[tableIndex].dicetype
+    dmgMod = CHARACTERSHEET.damagecounter[tableIndex].dammod
+    diceDealer(dCount, dType,displayCol,obj,target)
+    --Modifer
+    select_Broadcast("Print","[i]** Modifier: ("..dmgMod..")[/i]", displayCol,obj,target)
+    total = total + dmgMod
+    totaladv = totaladv + dmgMod
+    select_Broadcast("Broadcast",playerName.." dealt [u]( "..total.." | "..totaladv.." )[/u] total "..CHARACTERSHEET.damtypetextbox[textboxIndex].value..critical.." damage with their "..CHARACTERSHEET.attacktextbox[textboxIndex].value.."!", displayCol,obj,target)
+    total = 0
+    totaladv = 0
+
+end
+
+function click_critbutton(tableIndex, buttonIndex)
+    if CHARACTERSHEET.critbutton[tableIndex].crit == true then
+        CHARACTERSHEET.critbutton[tableIndex].crit = false
+        self.editButton({index=buttonIndex, label="Critical?", color=buttonColor})
+    else
+        CHARACTERSHEET.critbutton[tableIndex].crit = true
+        self.editButton({index=buttonIndex, label="CRITICAL!!!",color={1,0,0}})
+    end
+end
+
+function click_broadcastbutton(tableIndex, buttonIndex)
+    if CHARACTERSHEET.broadcastbutton[tableIndex].broadcast == true then
+        CHARACTERSHEET.broadcastbutton[tableIndex].broadcast = false
+        self.editButton({index=buttonIndex, label="Broadcasting to DM Only", color={1,0,0}})
+    else
+        CHARACTERSHEET.broadcastbutton[tableIndex].broadcast = true
+        self.editButton({index=buttonIndex, label="Broadcasting to All",color=buttonColor})
+    end
+end
+
+function click_eabutton(tableIndex, buttonIndex)
+    if CHARACTERSHEET.eabutton[tableIndex].reroll == true then
+        CHARACTERSHEET.eabutton[tableIndex].reroll = false
+        self.editButton({index=buttonIndex, label="EA Off", color=buttonColor})
+    else
+        CHARACTERSHEET.eabutton[tableIndex].reroll = false
+        self.editButton({index=buttonIndex, label="EA On!",color={0,0,1}})
+    end
+end
+
+--Locks or unlocks edits
+function click_lockbutton(tableIndex, buttonIndex)
+    local buttonList = {}
+    CHARACTERSHEET.lockbutton[tableIndex].locked = not CHARACTERSHEET.lockbutton[tableIndex].locked
+    if CHARACTERSHEET.lockbutton[tableIndex].locked then
+        self.editButton({index=buttonIndex, label="LOCKED"})
+        for _, data in ipairs(lockablebutton) do
+            local showlabel = data.showlabel
+            if showlabel then
+                self.editButton({index=data.index, height =0, width = 0})
+            else
+                self.editButton({index=data.index, height =0, width = 0,font_color = {1,1,1,0}})
+            end
+        end
+    else
+       self.editButton({index=buttonIndex, label="UNLOCKED"})
+        for _, data in ipairs(lockablebutton) do
+            self.editButton({index=data.index, height =data.height, width = data.width, font_color=buttonFontColor})
+        end
+    end
+    updateSave()
+end
+
+--Checks or unchecks the given box
+function click_checkbox(tableIndex, buttonIndex)
+    if CHARACTERSHEET.checkbox[tableIndex].state == true then
+        CHARACTERSHEET.checkbox[tableIndex].state = false
+        self.editButton({index=buttonIndex, label=""})
+    else
+        CHARACTERSHEET.checkbox[tableIndex].state = true
+        self.editButton({index=buttonIndex, label=string.char(10008)})
+    end
+    updateSave()
+end
+
+--Applies value to given counter display
+function click_counter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.counter[tableIndex].value = CHARACTERSHEET.counter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.counter[tableIndex].value})
+    updateSave()
+end
+
+function click_HPcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.HPcounter[tableIndex].value = CHARACTERSHEET.HPcounter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.HPcounter[tableIndex].value})
+    updateSave()
+end
+
+--Applies value to given initiative counter display
+function click_initcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.initcounter[tableIndex].value = CHARACTERSHEET.initcounter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.initcounter[tableIndex].value})
+    count=count+amount
+    updateSave()
+end
+
+--Applies value to given abilitycounter display
+function click_abilitycounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.abilitycounter[tableIndex].value = CHARACTERSHEET.abilitycounter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.abilitycounter[tableIndex].value})
+    updateSave()
+end
+
+--Applies value to given attackcounter display
+function click_attackcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.attackcounter[tableIndex].value = CHARACTERSHEET.attackcounter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.attackcounter[tableIndex].value})
+    updateSave()
+end
+
+--Applies value to given damagecounter display
+function click_dicenumcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.damagecounter[tableIndex].dicenum = CHARACTERSHEET.damagecounter[tableIndex].dicenum + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.damagecounter[tableIndex].dicenum.."D"..CHARACTERSHEET.damagecounter[tableIndex].dicetype.."+"..CHARACTERSHEET.damagecounter[tableIndex].dammod})
+    updateSave()
+end
+
+function click_dicetypecounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.damagecounter[tableIndex].dicetype = CHARACTERSHEET.damagecounter[tableIndex].dicetype + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.damagecounter[tableIndex].dicenum.."D"..CHARACTERSHEET.damagecounter[tableIndex].dicetype.."+"..CHARACTERSHEET.damagecounter[tableIndex].dammod})
+    updateSave()
+end
+
+function click_dammodcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.damagecounter[tableIndex].dammod = CHARACTERSHEET.damagecounter[tableIndex].dammod + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.damagecounter[tableIndex].dicenum.."D"..CHARACTERSHEET.damagecounter[tableIndex].dicetype.."+"..CHARACTERSHEET.damagecounter[tableIndex].dammod})
+    updateSave()
+end
+
+function click_dicerollernumcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.dicerollers[tableIndex].dicenum = CHARACTERSHEET.dicerollers[tableIndex].dicenum + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.dicerollers[tableIndex].dicenum.."D"..CHARACTERSHEET.dicerollers[tableIndex].dicetype.."+"..CHARACTERSHEET.dicerollers[tableIndex].dammod})
+    updateSave()
+end
+
+function click_dicerollertypecounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.dicerollers[tableIndex].dicetype = CHARACTERSHEET.dicerollers[tableIndex].dicetype + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.dicerollers[tableIndex].dicenum.."D"..CHARACTERSHEET.dicerollers[tableIndex].dicetype.."+"..CHARACTERSHEET.dicerollers[tableIndex].dammod})
+    updateSave()
+end
+
+function click_damrollermodcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.dicerollers[tableIndex].dammod = CHARACTERSHEET.dicerollers[tableIndex].dammod + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.dicerollers[tableIndex].dicenum.."D"..CHARACTERSHEET.dicerollers[tableIndex].dicetype.."+"..CHARACTERSHEET.dicerollers[tableIndex].dammod})
+    updateSave()
+end
+
+--Updates saved value for given text box
+function click_textbox(i, value)
+    if CHARACTERSHEET.lockbutton[1].locked then
+        return CHARACTERSHEET.textbox[i].value
+    end
+    CHARACTERSHEET.textbox[i].value = value
+    updateSave()
+end
+
+--Dud function for if you have a background on a counter
+function click_none() end
+
+-- Formats the Output and Addition of All Dice
+function diceDealer(dCount, dietype,displayCol,obj,target)
+    local numTab = {}
+    local numTabadv = {}
+    local printx = "[i]** würfelt "..dCount.."W"..dietype.." "
+    local printy = "("
+    local printz = "("
+    local dTotal = 0
+    local dTotaladv = 0
+    local target="All"
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+    for i = 1, dCount, 1 do
+        numTab[i] = math.random(dietype)
+        numTabadv[i] = math.random(dietype)
+        total = total + numTab[i]
+        totaladv = totaladv + numTabadv[i]
+        dTotal = dTotal + numTab[i]
+        dTotaladv = dTotaladv + numTabadv[i]
+        printy = printy..numTab[i]..", "
+        printz = printz..numTabadv[i]..", "
+    end
+    select_Broadcast("Print",printx, displayCol,obj,target)
+end
+
+-- Gets the Color Value for Player
+function getColor(obj)
+    if obj == "Brown" then return  {0.443, 0.231, 0.09}
+    elseif obj == "White" then return  {1, 1, 1}
+    elseif obj == "Red" then return  {0.856, 0.1, 0.094}
+    elseif obj == "Yellow" then return  {0.905, 0.898, 0.172}
+    elseif obj == "Green" then return  {0.192, 0.701, 0.168}
+    elseif obj == "Teal" then return  {0.129, 0.694, 0.607}
+    elseif obj == "Blue" then return  {0.118, 0.53, 1}
+    elseif obj == "Purple" then	return  {0.627, 0.125, 0.941}
+    elseif obj == "Pink" then return  {0.96, 0.439, 0.807}
+    elseif obj == "Grey" then return  {0.5, 0.5, 0.5}
+    elseif obj == "Orange" then return  {0.956, 0.392, 0.113}
+    elseif obj == "Black" then return {1, 1, 1}
+    end
+end
+
+-- Keeps our randomseed random
+function updateRandomSeed()
+    local chance = math.random(1,10)
+    if chance == 1 then
+        math.randomseed(os.time())
+    end
+end
+
+--Button creation
+
+--Makes lockbutton
+function createLockbutton()
+    for i, data in ipairs(CHARACTERSHEET.lockbutton) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        local funcName = "lockbutton"..i
+        local func = function() click_lockbutton(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "UNLOCKED"
+        if data.locked then label="LOCKED" end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=data.size, width=data.size*6,
+            font_size=data.size, scale=buttonScale,
+            color=buttonColor, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+function createBroadcastbutton()
+    for i, data in ipairs(CHARACTERSHEET.broadcastbutton) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        CHARACTERSHEET.broadcastbutton[1].buttonindex=buttonNumber
+        local funcName = "broadcastbutton"..i
+        local func = function() click_broadcastbutton(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "Broadcasting to All"
+        local height=data.height
+        local width = data.width
+        local color=buttonColor
+        if data.crit == false then
+            label="Broadcasting to DM Only"
+            color={1,0,0}
+        end
+
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=true})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height = 0
+                width=0
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=data.height, scale=buttonScale,
+            color=color, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+function createCritbutton()
+    for i, data in ipairs(CHARACTERSHEET.critbutton) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        CHARACTERSHEET.critbutton[1].buttonindex=buttonNumber
+        local funcName = "critbutton"..i
+        local func = function() click_critbutton(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "Critical?"
+        local height=data.height
+        local width = data.width
+        local color=buttonColor
+        if data.crit then
+            label="CRITICAL!!!"
+            color={1,0,0}
+            end
+
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=data.height, scale=buttonScale,
+            color=color, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+function createEAbutton()
+    for i, data in ipairs(CHARACTERSHEET.eabutton) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        CHARACTERSHEET.eabutton[1].buttonindex=buttonNumber
+        local funcName = "eabutton"..i
+        local func = function() click_eabutton(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "EA Off"
+        local height=data.height
+        local width=data.width
+        local color=buttonColor
+        if data.reroll then
+            label="EA On!"
+            color={0,0,1}
+        end
+
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=true})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height = 0
+                width=00
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=data.size, scale=buttonScale,
+            color=color, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+
+--Makes checkboxes
+function createCheckbox()
+    for i, data in ipairs(CHARACTERSHEET.checkbox) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        local funcName = "checkbox"..i
+        local func = function() click_checkbox(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = ""
+        if data.state==true then label=string.char(10008) end
+        --Sets height/width for display
+        local size = data.size
+        local fontcolor=buttonFontColor
+
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=size, width=size,showlabel=true})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                size = 0
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=size, width=size,
+            font_size=data.size, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+--Makes counters
+function createCounter()
+    print(spawnedButtonCount)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        --Sets up display
+        local displayNumber = spawnedButtonCount
+        --Sets up label
+        local label = data.value
+        --Sets height/width for display
+        local size = data.size
+        if data.hideBG == true then size = 0 end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function="click_none", function_owner=self,
+            position=data.pos, height=size, width=size,
+            font_size=data.size, scale=buttonScale,
+            color=buttonColor, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up add 1
+        local increment = data.increment
+        local funcName = "counterAdd"..i
+        local func = function() click_counter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "+"
+        --Sets up position
+        local offsetDistance = (data.size/2 + data.size/4) * (buttonScale[1] * 0.002)
+        local pos = {data.pos[1] + offsetDistance, data.pos[2], data.pos[3]}
+        --Sets up size
+        local size = data.size / 2
+        local fontsize=size
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=size, width=size,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                size = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=size, width=size,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up subtract 1
+        local increment = 0-data.increment
+        local funcName = "counterSub"..i
+        local func = function() click_counter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "-"
+        --Set up position
+        local pos = {data.pos[1] - offsetDistance, data.pos[2], data.pos[3]}
+        local size = data.size / 2
+        local fontsize=size
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=size, width=size,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                size = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=size, width=size,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+--Makes damagecounters
+function createdamageCounter()
+    for i, data in ipairs(CHARACTERSHEET.damagecounter) do
+         --Set up attack button function
+        local funcName = "damagecounterrollHit"..i
+        local func = function(obj,color) rollDamage(obj,color,i) end
+        self.setVar(funcName, func)
+        --Sets up display
+        local displayNumber = spawnedButtonCount
+        --Sets up label
+        local label = data.dicenum.."D"..data.dicetype.."+"..data.dammod
+        --Sets height/width for display
+        local height = data.height
+        local width = data.width
+        local fontsize=data.height+(180-data.height)/2
+        if data.hideBG == true then
+            height = 0
+            width=0
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up add 1
+        local increment = data.increment
+        local funcName = "dicenumcounterAdd"..i
+        local func = function() click_dicenumcounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "+"
+        --Sets up position
+        local offsetDistance = (data.height/2 + data.height/4+(180-data.height)/4) * (buttonScale[1] * 0.002)
+        local pos = {data.pos[1] - (2 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+        --Sets up size
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up subtract 1
+        local increment = 0-data.increment
+        local funcName = "dicenumcounterSub"..i
+        local func = function() click_dicenumcounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "-"
+        --Set up position
+        local pos = {data.pos[1] - (2 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up add 1
+        local increment = data.increment
+        local funcName = "dicetypecounterAdd"..i
+        local func = function() click_dicetypecounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "+"
+        --Sets up position
+        local offsetDistance = (data.height/2 + data.height/4+(180-data.height)/4) * (buttonScale[1] * 0.002)
+        local pos = {data.pos[1] - (0.5 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+        --Sets up size
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up subtract 1
+        local increment = 0-data.increment
+        local funcName = "dicetypecounterSub"..i
+        local func = function() click_dicetypecounter(i, displayNumber, -1) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "-"
+        --Set up position
+        local pos = {data.pos[1] - (0.5 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up add 1 to damage modifier
+        local increment = data.increment
+        local funcName = "dammodcounterAdd"..i
+        local func = function() click_dammodcounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "+"
+        --Sets up position
+        local offsetDistance = (data.height/2 + data.height/4+(180-data.height)/4) * (buttonScale[1] * 0.002)
+        local pos = {data.pos[1] + (2 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+        --Sets up size
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up subtract 1 do damage modifier
+        local increment = 0-data.increment
+        local funcName = "dammodcounterSub"..i
+        local func = function() click_dammodcounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "-"
+        --Set up position
+        local pos = {data.pos[1] + (2 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+    end
+end
+
+function creatediceButtons()
+    for i, data in ipairs(CHARACTERSHEET.dicerollers) do
+         --Set up attack button function
+        local funcName = "diceroller"..i
+        local func = function(obj,color) rollDice(obj,color,i) end
+        self.setVar(funcName, func)
+        --Sets up display
+        local displayNumber = spawnedButtonCount
+        --Sets up label
+
+        local label = data.label
+        if label=="" then
+            label=data.dicenum.."D"..data.dicetype.."+"..data.dammod
+        end
+        --Sets height/width for display
+        local height = data.height
+        local width = data.width
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=data.fontsize, scale=buttonScale,
+            color=buttonColor, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+        if data.name=="Hit Dice" then
+            --Sets up add 1
+            local increment = data.increment
+            local funcName = "dicerollernumcounterAdd"..i
+            local func = function() click_dicerollernumcounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "+"
+            --Sets up position
+            local offsetDistance = (data.height/2 + data.height/4) * (buttonScale[1] * 0.002)
+            local pos = {data.pos[1] - (2 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+            --Sets up size
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up subtract 1
+            local increment = 0-data.increment
+            local funcName = "dicerollernumcounterSub"..i
+            local func = function() click_dicerollernumcounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "-"
+            --Set up position
+            local pos = {data.pos[1] - (2 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up add 1
+            local increment = data.increment
+            local funcName = "dicerollertypecounterAdd"..i
+            local func = function() click_dicerollertypecounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "+"
+            --Sets up position
+            local offsetDistance = (data.height/2 + data.height/4) * (buttonScale[1] * 0.002)
+            local pos = {data.pos[1] - (0.5 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+            --Sets up size
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up subtract 1
+            local increment = 0-data.increment
+            local funcName = "dicerollertypecounterSub"..i
+            local func = function() click_dicerollertypecounter(i, displayNumber, -1) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "-"
+            --Set up position
+            local pos = {data.pos[1] - (0.5 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up add 1 to damage modifier
+            local increment = data.increment
+            local funcName = "damrollermodcounterAdd"..i
+            local func = function() click_damrollermodcounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "+"
+            --Sets up position
+            local offsetDistance = (data.height/2 + data.height/4) * (buttonScale[1] * 0.002)
+            local pos = {data.pos[1] + (2 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+            --Sets up size
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up subtract 1 do damage modifier
+            local increment = 0-data.increment
+            local funcName = "damrollermodcounterSub"..i
+            local func = function() click_damrollermodcounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "-"
+            --Set up position
+            local pos = {data.pos[1] + (2 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+        end
+    end
+end
+
+function createTextbox()
+    for i, data in ipairs(CHARACTERSHEET.textbox) do
+        --Sets up reference function
+        local funcName = "textbox"..i
+        local func = function(_,_,val) click_textbox(i,val) return CHARACTERSHEET.textbox[i].value end
+        self.setVar(funcName, func)
+        local height =(data.font_size*data.rows)+24
+        local width =data.width
+
+        self.createInput({
+            input_function = funcName,
+            function_owner = self,
+            label          = data.label,
+            alignment      = data.alignment,
+            position       = data.pos,
+            scale          = buttonScale,
+            width          = data.width,
+            height         = (data.font_size*data.rows)+24,
+            font_size      = data.font_size,
+            color          = buttonColor,
+            font_color     = buttonFontColor,
+            value= data.value
+        })
+        spawnedInputCount = spawnedInputCount + 1
+    end
+end
+
+function addiertAlles(namen)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.name == namen .. " gesamt" then
+            kompetenzbonusRechner(namen)
+            data.value = sucheWert(namen," Modifikator") + sucheWert(namen," Kompetenzbonus") + sucheWert(namen," GGSTD") + sucheWert(namen," Rüstung")
+            self.editButton({index=170 + i * 3, label=data.value})
+            break
+        end
+    end
+end
+
+function sucheWert(namen,typ)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if tostring(data.name) == tostring(namen .. typ) then
+            return data.value
+        end
+    end
+    return 0
+end
+
+function sucheKreuz(namen,typ)
+    for i, data in ipairs(CHARACTERSHEET.checkbox) do
+        if tostring("Fertigkeiten " .. data.name) == tostring(namen .. typ) then
+            return data.state
+        end
+    end
+end
+
+function kompetenzbonusRechner(namen)
+    local value = 0
+    local stufe = sucheWert("Stu","fe")
+    if sucheKreuz(namen," G") then if stufe == 1 then value = 4 else value = stufe + 2 end
+    elseif sucheKreuz(namen," E") then value = stufe + 4
+    elseif sucheKreuz(namen," M") then value = stufe + 6
+    elseif sucheKreuz(namen," L") then value = stufe + 8
+    end
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.name == namen .. " Kompetenzbonus" then
+            data.value = value
+            self.editButton({index=170 + i * 3, label=value})
+            break
+        end
+    end
+end
+
+tokenType='Player'
