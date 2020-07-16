@@ -1758,7 +1758,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fernkampfangriff 1 Geschicklichkeit Modifikator",
+            name = "Fernkampfangriff 1 Modifikator",
             pos    = {-0.490,0.107,1.008},
             size   = 300,
             value  = 0,
@@ -1803,7 +1803,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fernkampfangriff 2 Geschicklichkeit Modifikator",
+            name = "Fernkampfangriff 2 Modifikator",
             pos    = {-0.490,0.107,1.316},
             size   = 300,
             value  = 0,
@@ -1848,7 +1848,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fernkampfangriff Geschicklichkeit 3 Modifikator",
+            name = "Fernkampfangriff 3 Modifikator",
             pos    = {-0.490,0.107,1.624},
             size   = 300,
             value  = 0,
@@ -2289,10 +2289,10 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fertigkeiten Klassen-SG gesamt",
+            name = "Klassen-SG gesamt",
             pos    = {-1.441,0.107,-0.417},
             size   = 450,
-            value  = 0,
+            value  = 10,
             hideBG = true,
             lockable = true,
             increment = 1
@@ -2460,7 +2460,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fertigkeiten Klassen-SG Modifikator",
+            name = "Klassen-SG Modifikator",
             pos    = {-1.1135,0.107,-0.405},
             size   = 300,
             value  = 0,
@@ -2631,7 +2631,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fertigkeiten Klassen-SG Kompetenzbonus",
+            name = "Klassen-SG Kompetenzbonus",
             pos    = {-0.973,0.107,-0.405},
             size   = 300,
             value  = 0,
@@ -2838,7 +2838,7 @@ defaultButtonData = {
             increment = 1
         },
         {
-            name = "Fertigkeiten Klassen-SG GGSTD",
+            name = "Klassen-SG GGSTD",
             pos    = {-0.650,0.107,-0.405},
             size   = 300,
             value  = 0,
@@ -3822,7 +3822,6 @@ function updateSave()
     addiertAlles("Fertigkeiten Religionskunde")
     addiertAlles("Fertigkeiten Täuschung")
     addiertAlles("Fertigkeiten Überlebenskunst")
-    addiertAlles("Fertigkeiten Akrobatik")
     addiertAlles("Reflex")
     addiertAlles("Willen")
     addiertAlles("Zähigkeit")
@@ -3830,6 +3829,11 @@ function updateSave()
     addiertAlles("Nahkampfangriff 1");
     addiertAlles("Nahkampfangriff 2");
     addiertAlles("Nahkampfangriff 3");
+    addiertAlles("Fernkampfangriff 1");
+    addiertAlles("Fernkampfangriff 2");
+    addiertAlles("Fernkampfangriff 3");
+
+    addiertAllesPlusZehn("Klassen-SG");
 
     if edited==false then
         edited=true
@@ -4922,6 +4926,17 @@ function createTextbox()
             value= data.value
         })
         spawnedInputCount = spawnedInputCount + 1
+    end
+end
+
+function addiertAllesPlusZehn(namen)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.name == namen .. " gesamt" then
+            kompetenzbonusRechner(namen)
+            data.value = sucheWert(namen," Modifikator") + sucheWert(namen," Kompetenzbonus") + sucheWert(namen," GGSTD") + sucheWert(namen," Rüstung")
+            self.editButton({index=170 + i * 3, label=data.value + 10})
+            break
+        end
     end
 end
 
