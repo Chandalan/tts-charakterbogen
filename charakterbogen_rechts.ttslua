@@ -3833,6 +3833,8 @@ function updateSave()
     addiertAlles("Fernkampfangriff 2");
     addiertAlles("Fernkampfangriff 3");
 
+    addiertAllesMaxOderModPlusZehn("Rüstungsklasse");
+
     addiertAllesPlusZehn("Klassen-SG");
 
     if edited==false then
@@ -4928,6 +4930,23 @@ function createTextbox()
         spawnedInputCount = spawnedInputCount + 1
     end
 end
+
+function addiertAllesMaxOderModPlusZehn(namen)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.name == namen .. " gesamt" then
+            kompetenzbonusRechner(namen)
+            local modifikator = sucheWert(namen," Modifikator")
+            local value = sucheWert(namen," Max")
+            if modifikator > value then
+                value = modifikator
+            end
+            data.value = value + sucheWert(namen," Kompetenzbonus") + sucheWert(namen," GGSTD") + sucheWert(namen," Rüstung")
+            self.editButton({index=170 + i * 3, label=data.value + 10})
+            break
+        end
+    end
+end
+
 
 function addiertAllesPlusZehn(namen)
     for i, data in ipairs(CHARACTERSHEET.counter) do
