@@ -1615,15 +1615,7 @@ defaultButtonData = {
         },
         {
             name = "Nahkampfangriff 1 Modifikator",
-            pos    = {-0.492,0.107,-0.023},
-            size   = 300,
-            value  = 0,
-            hideBG = true,
-            lockable = true,
-            increment = 1
-        },
-        {
-            name = "Nahkampfangriff 1 Modifikator",
+            modifikator = "Stärke",
             pos    = {-0.492,0.107,-0.023},
             size   = 300,
             value  = 0,
@@ -1633,6 +1625,7 @@ defaultButtonData = {
         },
         {
             name = "Nahkampfangriff 1 Modifikator 2",
+            modifikator = "Stärke",
             pos    = {-1.298,0.107,0.143},
             size   = 300,
             value  = 0,
@@ -1669,6 +1662,7 @@ defaultButtonData = {
         },
         {
             name = "Nahkampfangriff 2 Modifikator",
+            modifikator = "Stärke",
             pos    = {-0.492,0.107,0.291},
             size   = 300,
             value  = 0,
@@ -1678,6 +1672,7 @@ defaultButtonData = {
         },
         {
             name = "Nahkampfangriff 2 Modifikator 2",
+            modifikator = "Stärke",
             pos    = {-1.298,0.107,0.457},
             size   = 300,
             value  = 0,
@@ -1714,6 +1709,7 @@ defaultButtonData = {
         },
         {
             name = "Nahkampfangriff 3 Modifikator",
+            modifikator = "Stärke",
             pos    = {-0.491,0.107,0.608},
             size   = 300,
             value  = 0,
@@ -1723,6 +1719,7 @@ defaultButtonData = {
         },
         {
             name = "Nahkampfangriff 3 Modifikator 2",
+            modifikator = "Stärke",
             pos    = {-1.298,0.107,0.772},
             size   = 300,
             value  = 0,
@@ -1759,6 +1756,7 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff 1 Modifikator",
+            modifikator = "Geschicklichkeit",
             pos    = {-0.490,0.107,1.008},
             size   = 300,
             value  = 0,
@@ -1768,6 +1766,7 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff 1 Geschicklichkeit Modifikator 2",
+            modifikator = "Geschicklichkeit",
             pos    = {-1.297,0.107,1.173},
             size   = 300,
             value  = 0,
@@ -1804,6 +1803,7 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff 2 Modifikator",
+            modifikator = "Geschicklichkeit",
             pos    = {-0.490,0.107,1.316},
             size   = 300,
             value  = 0,
@@ -1813,6 +1813,7 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff 2 Geschicklichkeit Modifikator 2",
+            modifikator = "Geschicklichkeit",
             pos    = {-1.297,0.107,1.482},
             size   = 300,
             value  = 0,
@@ -1849,6 +1850,7 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff 3 Modifikator",
+            modifikator = "Geschicklichkeit",
             pos    = {-0.490,0.107,1.624},
             size   = 300,
             value  = 0,
@@ -1858,6 +1860,7 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff Geschicklichkeit 3 Modifikator 2",
+            modifikator = "Geschicklichkeit",
             pos    = {-1.297,0.107,1.790},
             size   = 300,
             value  = 0,
@@ -1930,6 +1933,7 @@ defaultButtonData = {
         },
         {
             name = "Reflex Modifikator",
+            modifikator = "Geschicklichkeit",
             pos    = {-0.369,0.107,-0.679},
             size   = 300,
             value  = 0,
@@ -1939,6 +1943,7 @@ defaultButtonData = {
         },
         {
             name = "Willen Modifikator",
+            modifikator = "Weisheit",
             pos    = {0.0685,0.107,-0.679},
             size   = 300,
             value  = 0,
@@ -1948,6 +1953,7 @@ defaultButtonData = {
         },
         {
             name = "Zähigkeit Modifikator",
+            modifikator = "Konstitution",
             pos    = {0.500,0.107,-0.679},
             size   = 300,
             value  = 0,
@@ -2002,6 +2008,7 @@ defaultButtonData = {
         },
         {
             name = "Rüstungsklasse Modifikator",
+            modifikator = "Geschicklichkeit",
             pos    = {0.062,0.107,-1.365},
             size   = 250,
             value  = 0,
@@ -2101,6 +2108,7 @@ defaultButtonData = {
         },
         {
             name = "Wahrnehmung Modifikator",
+            modifikator = "Weisheit",
             pos    = {1.038,0.107,-0.580},
             size   = 250,
             value  = 0,
@@ -2299,6 +2307,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Akrobatik Modifikator",
+            modifikator = "Geschicklichkeit",
             pos    = {0.8325,0.107,-0.183},
             size   = 300,
             value  = 0,
@@ -2308,6 +2317,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Arkane Künste Modifikator",
+            modifikator = "Intelligenz",
             pos    = {0.8325,0.107,-0.063},
             size   = 300,
             value  = 0,
@@ -2317,6 +2327,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Athletik Modifikator",
+            modifikator = "Stärke",
             pos    = {0.8325,0.107,0.056},
             size   = 300,
             value  = 0,
@@ -2326,6 +2337,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Darbietung Modifikator",
+            modifikator = "Charisma",
             pos    = {0.8325,0.107,0.175},
             size   = 300,
             value  = 0,
@@ -2335,6 +2347,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Diebeskunst Modifikator",
+            modifikator = "Geschicklichkeit",
             pos    = {0.8325,0.107,0.294},
             size   = 300,
             value  = 0,
@@ -2344,6 +2357,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Diplomatie Modifikator",
+            modifikator = "Charisma",
             pos    = {0.8325,0.107,0.413},
             size   = 300,
             value  = 0,
@@ -2353,6 +2367,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Einschüchtern Modifikator",
+            modifikator = "Charisma",
             pos    = {0.8325,0.107,0.532},
             size   = 300,
             value  = 0,
@@ -2362,6 +2377,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Gesellschaftskunde Modifikator",
+            modifikator = "Intelligenz",
             pos    = {0.8325,0.107,0.651},
             size   = 300,
             value  = 0,
@@ -2371,6 +2387,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Handwerkskunst Modifikator",
+            modifikator = "Intelligenz",
             pos    = {0.8325,0.107,0.769},
             size   = 300,
             value  = 0,
@@ -2380,6 +2397,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Heilkunde Modifikator",
+            modifikator = "Weisheit",
             pos    = {0.8325,0.107,0.888},
             size   = 300,
             value  = 0,
@@ -2389,6 +2407,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Heimlichkeit Modifikator",
+            modifikator = "Geschicklichkeit",
             pos    = {0.8325,0.107,1.007},
             size   = 300,
             value  = 0,
@@ -2398,6 +2417,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Kenntnis 1 Modifikator",
+            modifikator = "Intelligenz",
             pos    = {0.8325,0.107,1.126},
             size   = 300,
             value  = 0,
@@ -2407,6 +2427,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Kenntnis 2 Modifikator",
+            modifikator = "Intelligenz",
             pos    = {0.8325,0.107,1.245},
             size   = 300,
             value  = 0,
@@ -2416,6 +2437,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Naturkunde Modifikator",
+            modifikator = "Weisheit",
             pos    = {0.8325,0.107,1.363},
             size   = 300,
             value  = 0,
@@ -2425,6 +2447,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Okkultismus Modifikator",
+            modifikator = "Intelligenz",
             pos    = {0.8325,0.107,1.482},
             size   = 300,
             value  = 0,
@@ -2434,6 +2457,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Religionskunde Modifikator",
+            modifikator = "Weisheit",
             pos    = {0.8325,0.107,1.600},
             size   = 300,
             value  = 0,
@@ -2443,6 +2467,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Täuschung Modifikator",
+            modifikator = "Charisma",
             pos    = {0.8325,0.107,1.719},
             size   = 300,
             value  = 0,
@@ -2452,6 +2477,7 @@ defaultButtonData = {
         },
         {
             name = "Fertigkeiten Überlebenskunst Modifikator",
+            modifikator = "Weisheit",
             pos    = {0.8325,0.107,1.837},
             size   = 300,
             value  = 0,
@@ -4944,7 +4970,17 @@ function attributeToModificator(namen)
                 data.value = math.floor(modi);
                 self.editButton({index=170 + i * 3, label=data.value})
             end
+            changeModifikatoren(namen, data.value)
             break
+        end
+    end
+end
+
+function changeModifikatoren(namen, wert)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.modifikator == namen then
+            data.value = wert
+            self.editButton({index=170 + i * 3, label=data.value})
         end
     end
 end
