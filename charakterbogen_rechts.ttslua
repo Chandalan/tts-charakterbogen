@@ -3802,7 +3802,12 @@ end
 
 --Save function
 function updateSave()
-
+    attributeToModificator("Stärke")
+    attributeToModificator("Geschicklichkeit")
+    attributeToModificator("Konstitution")
+    attributeToModificator("Intelligenz")
+    attributeToModificator("Weisheit")
+    attributeToModificator("Charisma")
     addiertAlles("Fertigkeiten Klassen-SG")
     addiertAlles("Fertigkeiten Akrobatik")
     addiertAlles("Fertigkeiten Arkane Künste")
@@ -4928,6 +4933,19 @@ function createTextbox()
             value= data.value
         })
         spawnedInputCount = spawnedInputCount + 1
+    end
+end
+function attributeToModificator(namen)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.name == namen .. " Modifikator" then
+            local attribute = sucheWert(namen,"")
+            local modi = (attribute - 10) / 2
+            if(modi > 0) then
+                data.value = math.floor(modi);
+                self.editButton({index=170 + i * 3, label=data.value})
+            end
+            break
+        end
     end
 end
 
