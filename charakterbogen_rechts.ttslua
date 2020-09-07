@@ -1766,7 +1766,6 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff 1 Geschicklichkeit Modifikator 2",
-            modifikator = "Geschicklichkeit",
             pos    = {-1.297,0.107,1.173},
             size   = 300,
             value  = 0,
@@ -1813,7 +1812,6 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff 2 Geschicklichkeit Modifikator 2",
-            modifikator = "Geschicklichkeit",
             pos    = {-1.297,0.107,1.482},
             size   = 300,
             value  = 0,
@@ -1860,7 +1858,6 @@ defaultButtonData = {
         },
         {
             name = "Fernkampfangriff Geschicklichkeit 3 Modifikator 2",
-            modifikator = "Geschicklichkeit",
             pos    = {-1.297,0.107,1.790},
             size   = 300,
             value  = 0,
@@ -4966,7 +4963,7 @@ function attributeToModificator(namen)
         if data.name == namen .. " Modifikator" then
             local attribute = sucheWert(namen,"")
             local modi = (attribute - 10) / 2
-            if(modi > 0) then
+            if(modi != 0) then
                 data.value = math.floor(modi);
                 self.editButton({index=170 + i * 3, label=data.value})
             end
