@@ -1,0 +1,3844 @@
+
+function print_table(node)
+    local cache, stack, output = {},{},{}
+    local depth = 1
+    local output_str = "{\n"
+
+    while true do
+        local size = 0
+        for k,v in pairs(node) do
+            size = size + 1
+        end
+
+        local cur_index = 1
+        for k,v in pairs(node) do
+            if (cache[node] == nil) or (cur_index >= cache[node]) then
+
+                if (string.find(output_str,"}",output_str:len())) then
+                    output_str = output_str .. ",\n"
+                elseif not (string.find(output_str,"\n",output_str:len())) then
+                    output_str = output_str .. "\n"
+                end
+
+                -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+                table.insert(output,output_str)
+                output_str = ""
+
+                local key
+                if (type(k) == "number" or type(k) == "boolean") then
+                    key = "["..tostring(k).."]"
+                else
+                    key = "['"..tostring(k).."']"
+                end
+
+                if (type(v) == "number" or type(v) == "boolean") then
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = "..tostring(v)
+                elseif (type(v) == "table") then
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = {\n"
+                    table.insert(stack,node)
+                    table.insert(stack,v)
+                    cache[node] = cur_index+1
+                    break
+                else
+                    output_str = output_str .. string.rep('\t',depth) .. key .. " = '"..tostring(v).."'"
+                end
+
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+                else
+                    output_str = output_str .. ","
+                end
+            else
+                -- close the table
+                if (cur_index == size) then
+                    output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+                end
+            end
+
+            cur_index = cur_index + 1
+        end
+
+        if (size == 0) then
+            output_str = output_str .. "\n" .. string.rep('\t',depth-1) .. "}"
+        end
+
+        if (#stack > 0) then
+            node = stack[#stack]
+            stack[#stack] = nil
+            depth = cache[node] == nil and depth + 1 or depth - 1
+        else
+            break
+        end
+    end
+
+    -- This is necessary for working with HUGE tables otherwise we run out of memory using concat on huge strings
+    table.insert(output,output_str)
+    output_str = table.concat(output)
+
+    print(output_str)
+end
+
+--Set this to true while editing and false when you have finished
+disableSave = false
+--Remember to set this to false once you are done making changes
+--Then, after you save & apply it, save your game too
+
+--Color information for button text (r,g,b, values of 0-1)
+buttonFontColor = {0,0,0,1}
+--Color information for button background
+buttonColor = {1,1,1}
+--Change scale of button (Avoid changing if possible)
+buttonScale = {0.1,0.1,0.1}
+
+-- Placeholder Default Variables
+edited=false
+displayCol = {1,1,1} -- Default Display Color
+d4Count = 0
+d6Count = 0
+d8Count = 0
+d10Count = 0
+d12Count = 0
+playerName = ""
+total = 0
+totaladv = 0
+hitMod = 0
+dmgMod = 0
+attackName = "D&D 5e Attack Roller"
+saveTable = {}
+lockCheck = false
+--This is the button placement information
+defaultButtonData = {
+    dicerollers={
+        {
+            name="D4",
+            pos={0,0.05,-2.08},
+            height= 1,
+            width= 1,
+            fontsize= 1,
+            dicenum  = 1,
+            dicetype = 4,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W4"
+        },
+        {
+            name="D6",
+            pos={0,0.05,-2.08},
+            height= 1,
+            width= 1,
+            fontsize= 1,
+            dicenum  = 1,
+            dicetype = 6,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W6"
+        },
+        {
+            name="D8",
+            pos={0,0.05,-2.08},
+            height= 1,
+            width= 1,
+            fontsize= 1,
+            dicenum  = 1,
+            dicetype = 8,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W8"
+        },
+        {
+            name="D10",
+            pos={0,0.05,-2.08},
+            height= 1,
+            width= 1,
+            fontsize= 1,
+            dicenum  = 1,
+            dicetype = 10,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W10"
+        },
+        {
+            name="D12",
+            pos={0,0.05,-2.08},
+            height= 1,
+            width= 1,
+            fontsize= 1,
+            dicenum  = 1,
+            dicetype = 12,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W12"
+        },
+        {
+            name="D20",
+            pos={0,0.05,-2.08},
+            height= 1,
+            width= 1,
+            fontsize= 1,
+            dicenum  = 1,
+            dicetype = 20,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W20"
+        },
+        {
+            name="D100",
+            pos={0,0.05,-2.08},
+            height= 1,
+            width= 1,
+            fontsize= 1,
+            dicenum  = 1,
+            dicetype = 100,
+            dammod = 0,
+            state=false,
+            lockable=false,
+            label="1W100"
+        },
+    },
+    broadcastbutton={
+        {
+            name="Broadcast Button",
+            pos   = {0,0.05,-2.08},
+            height  = 1,
+            width= 1,
+            lockable = true,
+            broadcast= true,
+            buttonindex=0
+        },
+    },
+    critbutton={
+        {
+            name="Crit Button",
+            pos   = {0,0.05,-2.08},
+            size  = 1,
+            width = 1,
+            lockable = false,
+            crit= false,
+            buttonindex=0
+        },
+    },
+    eabutton={
+        {
+            name="EA Button",
+            pos   = {0,0.05,-2.08},
+            height= 1,
+            width = 1,
+            lockable = true,
+            reroll= false,
+            buttonindex=0
+        },
+    },
+     --Add lockbuttons
+    lockbutton = {
+        --[[
+        pos   = the position (pasted from the helper tool)
+        size  = height/width/font_size for checkbox
+        state = default starting value for checkbox (true=locked, false=unlocked)
+        ]]
+        --Lockbutton
+        {
+            name="Lock Button",
+            pos   = {0,0.107,-2.08},
+            size  = 200,
+            state = false,
+            lockable= false
+        },
+        --end of lockbuttons
+    },
+    --Add checkboxes
+    checkbox = {
+        --[[
+        pos   = the position (pasted from the helper tool)
+        size  = height/width/font_size for checkbox
+        state = default starting value for checkbox (true=checked, false=not)
+        ]]
+        --Inspiration checkbox
+        {
+            name = "Zauberangriffswurf G",
+            pos   = {-0.856,0.107,-1.894},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauberangriffswurf E",
+            pos   = {-0.812,0.107,-1.894},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauberangriffswurf M",
+            pos   = {-0.768,0.107,-1.894},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauberangriffswurf L",
+            pos   = {-0.724,0.107,-1.894},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber-SG G",
+            pos   = {-0.776,0.107,-1.682},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber-SG E",
+            pos   = {-0.732,0.107,-1.682},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber-SG M",
+            pos   = {-0.688,0.107,-1.682},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber-SG L",
+            pos   = {-0.644,0.107,-1.682},
+            size  = 190,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Magische Traditionen Okkult",
+            pos   = {-1.0065,0.107,-1.417},
+            size  = 280,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Magische Traditionen Göttlich",
+            pos   = {-1.0065,0.107,-1.339},
+            size  = 280,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Magische Traditionen Arkan",
+            pos   = {-1.0835,0.107,-1.417},
+            size  = 280,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Magische Traditionen Natur",
+            pos   = {-1.0835,0.107,-1.339},
+            size  = 280,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Magische Traditionen Vorbereitet",
+            pos   = {-1.2835,0.107,-1.129},
+            size  = 280,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Magische Traditionen Spontan",
+            pos   = {-0.965,0.107,-1.129},
+            size  = 280,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Immanente Zauberfähigkeiten M 1",
+            pos   = {-0.6975,0.107,-0.555},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Immanente Zauberfähigkeiten G 1",
+            pos   = {-0.6425,0.107,-0.555},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Immanente Zauberfähigkeiten V 1",
+            pos   = {-0.594,0.107,-0.555},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Immanente Zauberfähigkeiten M 2",
+            pos   = {-0.6975,0.107,-0.2125},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Immanente Zauberfähigkeiten G 2",
+            pos   = {-0.6425,0.107,-0.2125},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Immanente Zauberfähigkeiten V 2",
+            pos   = {-0.594,0.107,-0.2125},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber M 1",
+            pos   = {-0.692,0.107,0.315},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber G 1",
+            pos   = {-0.6358,0.107,0.315},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber V 1",
+            pos   = {-0.587,0.107,0.315},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber M 2",
+            pos   = {-0.692,0.107,0.471},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber G 2",
+            pos   = {-0.6358,0.107,0.471},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber V 2",
+            pos   = {-0.587,0.107,0.471},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber M 3",
+            pos   = {-0.692,0.107,0.627},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber G 3",
+            pos   = {-0.6358,0.107,0.627},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber V 3",
+            pos   = {-0.587,0.107,0.627},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber M 4",
+            pos   = {-0.692,0.107,0.7835},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber G 4",
+            pos   = {-0.6358,0.107,0.7835},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber V 4",
+            pos   = {-0.587,0.107,0.7835},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber M 5",
+            pos   = {-0.692,0.107,0.940},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber G 5",
+            pos   = {-0.6358,0.107,0.940},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber V 5",
+            pos   = {-0.587,0.107,0.940},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber M 6",
+            pos   = {-0.692,0.107,1.096},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber G 6",
+            pos   = {-0.6358,0.107,1.096},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber V 6",
+            pos   = {-0.587,0.107,1.096},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber M 7",
+            pos   = {-0.692,0.107,1.252},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber G 7",
+            pos   = {-0.6358,0.107,1.252},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Fokuszauber V 7",
+            pos   = {-0.587,0.107,1.252},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 1",
+            pos   = {0.3465,0.107,-1.303},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 1",
+            pos   = {0.402,0.107,-1.303},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 1",
+            pos   = {0.450,0.107,-1.303},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 2",
+            pos   = {0.3465,0.107,-1.0195},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 2",
+            pos   = {0.402,0.107,-1.0195},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 2",
+            pos   = {0.450,0.107,-1.0195},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 3",
+            pos   = {0.3465,0.107,-0.736},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 3",
+            pos   = {0.402,0.107,-0.736},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 3",
+            pos   = {0.450,0.107,-0.736},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 4",
+            pos   = {0.3465,0.107,-0.4525},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 4",
+            pos   = {0.402,0.107,-0.4525},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 4",
+            pos   = {0.450,0.107,-0.4525},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 5",
+            pos   = {0.3465,0.107,-0.169},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 5",
+            pos   = {0.402,0.107,-0.169},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 5",
+            pos   = {0.450,0.107,-0.169},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 6",
+            pos   = {0.3465,0.107,0.1145},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 6",
+            pos   = {0.402,0.107,0.1145},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 6",
+            pos   = {0.450,0.107,0.1145},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 7",
+            pos   = {0.3465,0.107,0.398},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 7",
+            pos   = {0.402,0.107,0.398},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 7",
+            pos   = {0.450,0.107,0.398},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 8",
+            pos   = {0.3465,0.107,0.6815},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 8",
+            pos   = {0.402,0.107,0.6815},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 8",
+            pos   = {0.450,0.107,0.6815},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 9",
+            pos   = {0.3465,0.107,0.964},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 9",
+            pos   = {0.402,0.107,0.964},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 9",
+            pos   = {0.450,0.107,0.964},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks M 10",
+            pos   = {0.3465,0.107,1.247},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks G 10",
+            pos   = {0.402,0.107,1.247},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks V 10",
+            pos   = {0.450,0.107,1.247},
+            size  = 110,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber M 1",
+            pos   = {1.3855,0.107,-1.221},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber G 1",
+            pos   = {1.441,0.107,-1.221},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber V 1",
+            pos   = {1.489,0.107,-1.221},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber M 2",
+            pos   = {1.3855,0.107,-0.868},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber G 2",
+            pos   = {1.441,0.107,-0.868},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber V 2",
+            pos   = {1.489,0.107,-0.868},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber M 3",
+            pos   = {1.3855,0.107,-0.5145},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber G 3",
+            pos   = {1.441,0.107,-0.5145},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber V 3",
+            pos   = {1.489,0.107,-0.5145},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber M 4",
+            pos   = {1.3855,0.107,-0.161},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber G 4",
+            pos   = {1.441,0.107,-0.161},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber V 4",
+            pos   = {1.489,0.107,-0.161},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber M 5",
+            pos   = {1.3855,0.107,0.192},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber G 5",
+            pos   = {1.441,0.107,0.192},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber V 5",
+            pos   = {1.489,0.107,0.192},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber M 6",
+            pos   = {1.3855,0.107,0.545},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber G 6",
+            pos   = {1.441,0.107,0.545},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber V 6",
+            pos   = {1.489,0.107,0.545},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber M 7",
+            pos   = {1.3855,0.107,0.8985},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber G 7",
+            pos   = {1.441,0.107,0.8985},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber V 7",
+            pos   = {1.489,0.107,0.8985},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber M 8",
+            pos   = {1.3855,0.107,1.252},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber G 8",
+            pos   = {1.441,0.107,1.252},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zauber V 8",
+            pos   = {1.489,0.107,1.252},
+            size  = 100,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 1",
+            pos   = {0.448,0.107,-1.455},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 2",
+            pos   = {0.448,0.107,-1.172},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 3",
+            pos   = {0.448,0.107,-0.889},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 4",
+            pos   = {0.448,0.107,-0.606},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 5",
+            pos   = {0.448,0.107,-0.3225},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 6",
+            pos   = {0.448,0.107,-0.0395},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 7",
+            pos   = {0.448,0.107,0.2435},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 8",
+            pos   = {0.448,0.107,0.5275},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 9",
+            pos   = {0.448,0.107,0.8105},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        {
+            name = "Zaubertricks Vorbereitet 10",
+            pos   = {0.448,0.107,1.0935},
+            size  = 200,
+            state = false,
+            lockable = false
+        },
+        --End of checkboxes
+    },
+    --Add counters that have a + and - button
+    counter = {
+        --[[
+        pos    = the position (pasted from the helper tool)
+        size   = height/width/font_size for counter
+        value  = default starting value for counter
+        hideBG = if background of counter is hidden (true=hidden, false=not)
+        ]]
+        {
+            name = "Zauberangriffswurf gesamt",
+            pos    = {-1.3205,0.107,-1.906},
+            size   = 350,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberangriffswurf Attribut",
+            pos    = {-1.116,0.107,-1.890},
+            size   = 350,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberangriffswurf Kompetenzbonus",
+            pos    = {-0.954,0.107,-1.890},
+            size   = 290,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber-SG gesamt",
+            pos    = {-1.389,0.107,-1.693},
+            size   = 350,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber-SG Attribut",
+            pos    = {-1.0405,0.107,-1.678},
+            size   = 350,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber-SG Kompetenzbonus",
+            pos    = {-0.879,0.107,-1.678},
+            size   = 290,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fokuszauber aktuell",
+            pos    = {-1.041,0.107,0.029},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Fokuszauber maximum",
+            pos    = {-0.786,0.107,0.029},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks",
+            pos    = {-0.391,0.107,-1.770},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 1",
+            pos    = {-0.2095,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 2",
+            pos    = {-0.0275,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 3",
+            pos    = {0.1545,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 4",
+            pos    = {0.3365,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 5",
+            pos    = {0.5185,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 6",
+            pos    = {0.7005,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 7",
+            pos    = {0.8825,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 8",
+            pos    = {1.0645,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 9",
+            pos    = {1.2465,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauberplätze pro Tag 10",
+            pos    = {1.4285,0.107,-1.900},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 1",
+            pos    = {-0.2095,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 2",
+            pos    = {-0.0275,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 3",
+            pos    = {0.1545,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 4",
+            pos    = {0.3365,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 5",
+            pos    = {0.5185,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 6",
+            pos    = {0.7005,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 7",
+            pos    = {0.8825,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 8",
+            pos    = {1.0645,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 9",
+            pos    = {1.2465,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Übrige spontane Zauberplätze 10",
+            pos    = {1.4285,0.107,-1.748},
+            size   = 400,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 1",
+            pos    = {0.371,0.107,-1.452},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 2",
+            pos    = {0.371,0.107,-1.169},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 3",
+            pos    = {0.371,0.107,-0.886},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 4",
+            pos    = {0.371,0.107,-0.602},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 5",
+            pos    = {0.371,0.107,-0.319},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 6",
+            pos    = {0.371,0.107,-0.036},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 7",
+            pos    = {0.371,0.107,0.247},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 8",
+            pos    = {0.371,0.107,0.5305},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 9",
+            pos    = {0.371,0.107,0.8135},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zaubertricks Grad 10",
+            pos    = {0.371,0.107,1.0965},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Grad 1",
+            pos    = {1.410,0.107,-1.452},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Vorbereitet 1",
+            pos    = {1.487,0.107,-1.452},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Grad 2",
+            pos    = {1.410,0.107,-1.099},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Vorbereitet 2",
+            pos    = {1.487,0.107,-1.099},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Grad 3",
+            pos    = {1.410,0.107,-0.746},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Vorbereitet 3",
+            pos    = {1.487,0.107,-0.746},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Grad 4",
+            pos    = {1.410,0.107,-0.3925},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Vorbereitet 4",
+            pos    = {1.487,0.107,-0.3925},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Grad 5",
+            pos    = {1.410,0.107,-0.0395},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Vorbereitet 5",
+            pos    = {1.487,0.107,-0.0395},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Grad 6",
+            pos    = {1.410,0.107,0.314},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Vorbereitet 6",
+            pos    = {1.487,0.107,0.314},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Grad 7",
+            pos    = {1.410,0.107,0.667},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Vorbereitet 7",
+            pos    = {1.487,0.107,0.667},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Grad 8",
+            pos    = {1.410,0.107,1.0205},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+        {
+            name = "Zauber Vorbereitet 8",
+            pos    = {1.487,0.107,1.0205},
+            size   = 170,
+            value  = 0,
+            hideBG = true,
+            lockable = true,
+            increment = 1
+        },
+    },
+    --Add editable text boxes
+    textbox = {
+        --First textbox
+        {
+            name = "Immanente Zauberfähigkeiten Traditionen",
+            pos       = {-0.917,0.107,-0.909},
+            rows      = 1,
+            width     = 3490,
+            font_size = 290,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Grad 1",
+            pos       = {-0.634,0.107,-0.789},
+            rows      = 1,
+            width     = 670,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Frequenz 1",
+            pos       = {-0.635,0.107,-0.6985},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Aktionen 1",
+            pos       = {-0.635,0.107,-0.603},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Grad 2",
+            pos       = {-0.634,0.107,-0.4465},
+            rows      = 1,
+            width     = 670,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Frequenz 2",
+            pos       = {-0.635,0.107,-0.356},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Aktionen 2",
+            pos       = {-0.635,0.107,-0.2605},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Name 1",
+            pos       = {-1.122,0.107,-0.804},
+            rows      = 1,
+            width     = 3870,
+            font_size = 310,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Name 2",
+            pos       = {-1.122,0.107,-0.463},
+            rows      = 1,
+            width     = 3870,
+            font_size = 310,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Beschreibung 1",
+            pos       = {-1.122,0.107,-0.650},
+            rows      = 8,
+            width     = 3870,
+            font_size = 128,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Immanente Zauberfähigkeiten Beschreibung 2",
+            pos       = {-1.122,0.107,-0.308},
+            rows      = 8,
+            width     = 3870,
+            font_size = 128,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Tradition",
+            pos       = {-1.0755,0.107,0.137},
+            rows      = 1,
+            width     = 1950,
+            font_size = 290,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Seiten",
+            pos       = {-0.627,0.107,0.137},
+            rows      = 1,
+            width     = 680,
+            font_size = 180,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Beschreibung 1",
+            pos       = {-1.1195,0.107,0.267},
+            rows      = 5,
+            width     = 3900,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Beschreibung 2",
+            pos       = {-1.1195,0.107,0.423},
+            rows      = 5,
+            width     = 3900,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Beschreibung 3",
+            pos       = {-1.1195,0.107,0.579},
+            rows      = 5,
+            width     = 3900,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Beschreibung 4",
+            pos       = {-1.1195,0.107,0.735},
+            rows      = 5,
+            width     = 3900,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Beschreibung 5",
+            pos       = {-1.1195,0.107,0.891},
+            rows      = 5,
+            width     = 3900,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Beschreibung 6",
+            pos       = {-1.1195,0.107,1.047},
+            rows      = 5,
+            width     = 3900,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Beschreibung 7",
+            pos       = {-1.1195,0.107,1.203},
+            rows      = 5,
+            width     = 3900,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Aktionen 1",
+            pos       = {-0.629,0.107,0.266},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Aktionen 2",
+            pos       = {-0.629,0.107,0.422},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Aktionen 3",
+            pos       = {-0.629,0.107,0.578},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Aktionen 4",
+            pos       = {-0.629,0.107,0.7345},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Aktionen 5",
+            pos       = {-0.629,0.107,0.8905},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Aktionen 6",
+            pos       = {-0.629,0.107,1.0465},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Fokuszauber Aktionen 7",
+            pos       = {-0.629,0.107,1.2025},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 1",
+            pos       = {-0.078,0.107,-1.470},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 1",
+            pos       = {-0.078,0.107,-1.355},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 1",
+            pos       = {0.4095,0.107,-1.3505},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 2",
+            pos       = {-0.078,0.107,-1.187},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 2",
+            pos       = {-0.078,0.107,-1.072},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 2",
+            pos       = {0.4095,0.107,-1.0675},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 3",
+            pos       = {-0.078,0.107,-0.904},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 3",
+            pos       = {-0.078,0.107,-0.789},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 3",
+            pos       = {0.4095,0.107,-0.7845},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 4",
+            pos       = {-0.078,0.107,-0.621},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 4",
+            pos       = {-0.078,0.107,-0.506},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 4",
+            pos       = {0.4095,0.107,-0.5015},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 5",
+            pos       = {-0.078,0.107,-0.338},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 5",
+            pos       = {-0.078,0.107,-0.223},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 5",
+            pos       = {0.4095,0.107,-0.2185},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 6",
+            pos       = {-0.078,0.107,-0.0545},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 6",
+            pos       = {-0.078,0.107,0.0605},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 6",
+            pos       = {0.4095,0.107,0.0650},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 7",
+            pos       = {-0.078,0.107,0.228},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 7",
+            pos       = {-0.078,0.107,0.3435},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 7",
+            pos       = {0.4095,0.107,0.348},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 8",
+            pos       = {-0.078,0.107,0.511},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 8",
+            pos       = {-0.078,0.107,0.6265},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 8",
+            pos       = {0.4095,0.107,0.631},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 9",
+            pos       = {-0.078,0.107,0.7945},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 9",
+            pos       = {-0.078,0.107,0.910},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 9",
+            pos       = {0.4095,0.107,0.9145},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Name 10",
+            pos       = {-0.078,0.107,1.0775},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Beschreibung 10",
+            pos       = {-0.078,0.107,1.193},
+            rows      = 6,
+            width     = 3880,
+            font_size = 110,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zaubertricks Aktionen 10",
+            pos       = {0.4095,0.107,1.1975},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Name 1",
+            pos       = {0.961,0.107,-1.470},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Beschreibung 1",
+            pos       = {0.961,0.107,-1.317},
+            rows      = 9,
+            width     = 3880,
+            font_size = 113,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Erhöhung 1",
+            pos       = {1.4485,0.107,-1.3645},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Aktionen 1",
+            pos       = {1.4485,0.107,-1.2695},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Name 2",
+            pos       = {0.961,0.107,-1.117},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Beschreibung 2",
+            pos       = {0.961,0.107,-0.964},
+            rows      = 9,
+            width     = 3880,
+            font_size = 113,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Erhöhung 2",
+            pos       = {1.4485,0.107,-1.0115},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Aktionen 2",
+            pos       = {1.4485,0.107,-0.9165},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Name 3",
+            pos       = {0.961,0.107,-0.764},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Beschreibung 3",
+            pos       = {0.961,0.107,-0.611},
+            rows      = 9,
+            width     = 3880,
+            font_size = 113,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Erhöhung 3",
+            pos       = {1.4485,0.107,-0.6585},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Aktionen 3",
+            pos       = {1.4485,0.107,-0.5635},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Name 4",
+            pos       = {0.961,0.107,-0.4105},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Beschreibung 4",
+            pos       = {0.961,0.107,-0.2575},
+            rows      = 9,
+            width     = 3880,
+            font_size = 113,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Erhöhung 4",
+            pos       = {1.4485,0.107,-0.305},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Aktionen 4",
+            pos       = {1.4485,0.107,-0.210},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Name 5",
+            pos       = {0.961,0.107,-0.0575},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Beschreibung 5",
+            pos       = {0.961,0.107,0.0955},
+            rows      = 9,
+            width     = 3880,
+            font_size = 113,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Erhöhung 5",
+            pos       = {1.4485,0.107,0.048},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Aktionen 5",
+            pos       = {1.4485,0.107,0.143},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Name 6",
+            pos       = {0.961,0.107,0.2955},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Beschreibung 6",
+            pos       = {0.961,0.107,0.4485},
+            rows      = 9,
+            width     = 3880,
+            font_size = 113,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Erhöhung 6",
+            pos       = {1.4485,0.107,0.401},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Aktionen 6",
+            pos       = {1.4485,0.107,0.496},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Name 7",
+            pos       = {0.961,0.107,0.649},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Beschreibung 7",
+            pos       = {0.961,0.107,0.802},
+            rows      = 9,
+            width     = 3880,
+            font_size = 113,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Erhöhung 7",
+            pos       = {1.4485,0.107,0.7545},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Aktionen 7",
+            pos       = {1.4485,0.107,0.8495},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Name 8",
+            pos       = {0.961,0.107,1.0025},
+            rows      = 1,
+            width     = 3880,
+            font_size = 320,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Beschreibung 8",
+            pos       = {0.961,0.107,1.1555},
+            rows      = 9,
+            width     = 3880,
+            font_size = 113,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Erhöhung 8",
+            pos       = {1.4485,0.107,1.108},
+            rows      = 1,
+            width     = 680,
+            font_size = 160,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauber Aktionen 8",
+            pos       = {1.4485,0.107,1.203},
+            rows      = 2,
+            width     = 680,
+            font_size = 115,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Aktionen 1",
+            pos       = {-0.886,0.107,1.488},
+            rows      = 2,
+            width     = 890,
+            font_size = 180,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Aktionen 2",
+            pos       = {-0.886,0.107,1.810},
+            rows      = 2,
+            width     = 890,
+            font_size = 180,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Aktionen 3",
+            pos       = {0.6525,0.107,1.488},
+            rows      = 2,
+            width     = 890,
+            font_size = 180,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Seiten 1",
+            pos       = {-0.1105,0.107,1.491},
+            rows      = 1,
+            width     = 860,
+            font_size = 220,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Seiten 2",
+            pos       = {-0.1105,0.107,1.813},
+            rows      = 1,
+            width     = 860,
+            font_size = 220,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Seiten 3",
+            pos       = {1.422,0.107,1.491},
+            rows      = 1,
+            width     = 860,
+            font_size = 220,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Kategorien 1",
+            pos       = {-0.5005,0.107,1.491},
+            rows      = 2,
+            width     = 2670,
+            font_size = 170,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Kategorien 2",
+            pos       = {-0.5005,0.107,1.813},
+            rows      = 2,
+            width     = 2670,
+            font_size = 170,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Kategorien 3",
+            pos       = {1.035,0.107,1.491},
+            rows      = 2,
+            width     = 2650,
+            font_size = 170,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Name 1",
+            pos       = {-1.256,0.107,1.491},
+            rows      = 1,
+            width     = 2520,
+            font_size = 340,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Name 2",
+            pos       = {-1.256,0.107,1.813},
+            rows      = 1,
+            width     = 2520,
+            font_size = 340,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Name 3",
+            pos       = {0.285,0.107,1.491},
+            rows      = 1,
+            width     = 2510,
+            font_size = 340,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Beschreibung 1",
+            pos       = {-0.665,0.107,1.628},
+            rows      = 5,
+            width     = 6190,
+            font_size = 147,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Beschreibung 2",
+            pos       = {-0.665,0.107,1.951},
+            rows      = 5,
+            width     = 6190,
+            font_size = 147,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Beschreibung 3",
+            pos       = {0.872,0.107,1.628},
+            rows      = 5,
+            width     = 6130,
+            font_size = 147,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+        {
+            name = "Zauberfähigkeiten Sonstige Zaubermodifikationen",
+            pos       = {0.766,0.107,1.901},
+            rows      = 9,
+            width     = 7130,
+            font_size = 133,
+            label     = "",
+            value     = "",
+            alignment = 3,
+            lockable = true
+        },
+    }
+}
+
+--Lua beyond this point, I recommend doing something more fun with your life
+
+function onSave()
+    if edited ==true then
+        saved_data = JSON.encode(CHARACTERSHEET)
+        if disableSave==true then saved_data="" end
+        self.script_state = saved_data
+        edited=false
+    end
+
+end
+
+--Save function
+function updateSave()
+    addiertAlles("Zauberangriffswurf")
+    addiertAllesPlusZehn("Zauber-SG")
+    if edited==false then
+        edited=true
+    end
+    -- saved_data = JSON.encode(CHARACTERSHEET)
+    -- if disableSave==true then saved_data="" end
+    -- self.script_state = saved_data
+end
+
+--Startup procedure
+function onLoad(saved_data)
+    if disableSave==true then saved_data="" end
+    if saved_data ~= "" then
+        local loaded_data = JSON.decode(saved_data)
+        CHARACTERSHEET = loaded_data
+        --count =CHARACTERSHEET.initcounter[1].value
+        --self.setName(CHARACTERSHEET.textbox[5].value.."|"..CHARACTERSHEET.textbox[1].value.."|AC:"..CHARACTERSHEET.abilitycounter[2].value.."|PP:"..CHARACTERSHEET.abilitycounter[4].value)
+    else
+        CHARACTERSHEET = defaultButtonData
+        self.setName("")
+        count=0
+    end
+
+    spawnedButtonCount = 0
+    spawnedInputCount = 0
+    lockablebutton ={}
+    lockableinput = {}
+    createLockbutton()
+    createBroadcastbutton()
+    createEAbutton()
+    createCheckbox()
+    createCounter()
+    creatediceButtons()
+    createTextbox()
+    math.randomseed(os.time()) -- Makes our random rolls much more random
+end
+
+--Click functions for buttons
+-- Do Nuffin
+function singleD()--[[The do nothing function for buttons with no use/display only.]]end
+
+function select_Broadcast(mestype,message,fontcolor,playercolor,target)
+    if target =="All" and mestype=="Print" then
+        printToAll(message,fontcolor)
+    elseif target=="All" and mestype=="Broadcast" then
+        broadcastToAll(message,fontcolor)
+    elseif target=="DM" and mestype=="Print" and playercolor ~= "Black" and Player["Black"].seated then
+        printToColor(message,playercolor,fontcolor)
+        printToColor(message,"Black",fontcolor)
+    elseif target=="DM" and mestype=="Broadcast" and playercolor ~= "Black" and Player["Black"].seated then
+        broadcastToColor(message,playercolor,fontcolor)
+        broadcastToColor(message,"Black",fontcolor)
+    elseif target=="DM" and mestype=="Print" then
+        printToColor(message,playercolor,fontcolor)
+    elseif target=="DM" and mestype=="Broadcast" then
+        broadcastToColor(message,playercolor,fontcolor)
+    end
+end
+
+--Roll Check
+function rollCheck(color, obj, tableIndex) -- Roll Check Function
+    updateRandomSeed()
+    displayCol = getColor(obj) -- Replaces default color with player color
+    playerName = Player[obj].steam_name -- Replaces default
+    local atkRoll = math.random(20) -- Gets First d20
+    local atkRollAdv = math.random(20) -- Gets Second d20
+    local target="All"
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+
+    --prints results
+    select_Broadcast("Print","_____________________________", displayCol,obj,target)
+    select_Broadcast("Print","                              ", displayCol,obj,target)
+    select_Broadcast("Print","[b]"..playerName.." rolls "..CHARACTERSHEET.abilitycounter[tableIndex].ability.."[/b]", displayCol,obj,target)
+    select_Broadcast("Print","[i]** Original Roll: ("..atkRoll.. " | "..atkRollAdv..") Modifier Added: ("..CHARACTERSHEET.abilitycounter[tableIndex].value..")[/i]", displayCol,obj,target)
+    --add modifier
+    atkRoll = atkRoll + CHARACTERSHEET.abilitycounter[tableIndex].value
+    atkRollAdv = atkRollAdv + CHARACTERSHEET.abilitycounter[tableIndex].value
+    --broadcast summary
+    select_Broadcast("Broadcast",playerName.." rolled [u]("..atkRoll.. " | "..atkRollAdv..")[/u] as "..CHARACTERSHEET.abilitycounter[tableIndex].ability.."!", displayCol,obj,target)
+end
+
+--Roll to Hit
+function rollHit(color, obj, tableIndex) -- Roll to Hit Function
+    updateRandomSeed()
+    displayCol = getColor(obj) -- Replaces default color with player color
+    playerName = Player[obj].steam_name -- Replaces default
+    local textboxIndex = tableIndex  --gets attack name index
+    local atkRoll = math.random(20) -- Gets First d20
+    local atkRollAdv = math.random(20) -- Gets Second d20
+    local atkRollEA = math.random(20)
+    local atkDisp=""
+    local atkDispAdv=""
+    local atkDispEA=""
+
+    if atkRoll==1 then
+        atkDisp="*FAIL!*"
+    elseif atkRoll==20 then
+        atkDisp="*CRIT!*"
+    end
+
+    if atkRollAdv==1 then
+        atkDispAdv="*FAIL!*"
+    elseif atkRollAdv==20 then
+        atkDispAdv="*CRIT!*"
+    end
+
+    if atkRollEA==1 then
+        atkDispEA="*FAIL!*"
+    elseif atkRollEA==20 then
+        atkDispEA="*CRIT!*"
+    end
+
+    local target="All"
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+    --prints results
+    select_Broadcast("Print","_____________________________", displayCol,obj,target)
+    select_Broadcast("Print","                              ", displayCol,obj,target)
+    select_Broadcast("Print","[b]"..playerName.."'s Roll to HIT[/b]", displayCol,obj,target)
+    if CHARACTERSHEET.eabutton[1].reroll==true then
+        select_Broadcast("Print","[i]** Original Roll: ("..atkRoll..atkDisp.. " | "..atkRollAdv..atkDispAdv.." | "..atkRollEA..atkDispEA..") Modifier Added: ("..CHARACTERSHEET.attackcounter[tableIndex].value..")[/i]", displayCol,obj,target)
+    else
+        select_Broadcast("Print","[i]** Original Roll: ("..atkRoll..atkDisp.. " | "..atkRollAdv..atkDispAdv..") Modifier Added: ("..CHARACTERSHEET.attackcounter[tableIndex].value..")[/i]", displayCol,obj,target)
+    end
+
+    --add modifier
+    atkRoll = atkRoll + CHARACTERSHEET.attackcounter[tableIndex].value
+    atkRollAdv = atkRollAdv + CHARACTERSHEET.attackcounter[tableIndex].value
+    atkRollEA=atkRollEA + CHARACTERSHEET.attackcounter[tableIndex].value
+
+    --broadcast summary
+    if CHARACTERSHEET.eabutton[1].reroll==true then
+        select_Broadcast("Broadcast",playerName.." rolled [u]("..atkRoll..atkDisp.." | "..atkRollAdv..atkDispAdv.." | "..atkRollEA..atkDispEA..")[/u] to hit with their "..CHARACTERSHEET.attacktextbox[textboxIndex].value.."!", displayCol,obj,target)
+    else
+        select_Broadcast("Broadcast",playerName.." rolled [u]("..atkRoll..atkDisp.." | "..atkRollAdv..atkDispAdv..")[/u] to hit with their "..CHARACTERSHEET.attacktextbox[textboxIndex].value.."!", displayCol,obj,target)
+    end
+end
+
+function rollDice(color, obj, tableIndex)
+    displayCol = getColor(obj)
+    playerName = Player[obj].steam_name
+    updateRandomSeed()
+    local target="All"
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+    select_Broadcast("Print","_____________________________", displayCol,obj,target)
+    select_Broadcast("Print","                              ", displayCol,obj,target)
+    select_Broadcast("Print","[b]"..playerName.."'s Wurf[/b]", displayCol,obj,target)
+    --get total
+    dCount = CHARACTERSHEET.dicerollers[tableIndex].dicenum
+    dType = CHARACTERSHEET.dicerollers[tableIndex].dicetype
+    dmgMod = CHARACTERSHEET.dicerollers[tableIndex].dammod
+    diceDealer(dCount, dType,displayCol,obj,target)
+    --Modifer
+    total = total
+    totaladv = totaladv + dmgMod
+    select_Broadcast("Broadcast",playerName.." würfelt [u]("..total..")[/u]! ", displayCol,obj,target)
+    total = 0
+    totaladv = 0
+
+end
+
+-- Roll the Damage
+function rollDamage(color, obj, tableIndex)
+    displayCol = getColor(obj)
+    playerName = Player[obj].steam_name
+    local textboxIndex = tableIndex
+    updateRandomSeed()
+    local target="All"
+    local critical=""
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+    if CHARACTERSHEET.critbutton[1].crit==true then
+        dCount=CHARACTERSHEET.damagecounter[tableIndex].dicenum*2
+        CHARACTERSHEET.critbutton[1].crit=false
+        self.editButton({index=CHARACTERSHEET.critbutton[1].buttonindex, label="Critical?", color=buttonColor})
+        critical="*CRITICAL*"
+    else
+        dCount = CHARACTERSHEET.damagecounter[tableIndex].dicenum
+    end
+    select_Broadcast("Print","_____________________________", displayCol,obj,target)
+    select_Broadcast("Print","                              ", displayCol,obj,target)
+    select_Broadcast("Print","[b]"..playerName.."'s "..critical.." Damage Roll[/b]", displayCol,obj,target)
+    --get total
+    dType = CHARACTERSHEET.damagecounter[tableIndex].dicetype
+    dmgMod = CHARACTERSHEET.damagecounter[tableIndex].dammod
+    diceDealer(dCount, dType,displayCol,obj,target)
+    --Modifer
+    select_Broadcast("Print","[i]** Modifier: ("..dmgMod..")[/i]", displayCol,obj,target)
+    total = total + dmgMod
+    totaladv = totaladv + dmgMod
+    select_Broadcast("Broadcast",playerName.." dealt [u]( "..total.." | "..totaladv.." )[/u] total "..CHARACTERSHEET.damtypetextbox[textboxIndex].value..critical.." damage with their "..CHARACTERSHEET.attacktextbox[textboxIndex].value.."!", displayCol,obj,target)
+    total = 0
+    totaladv = 0
+
+end
+
+function click_critbutton(tableIndex, buttonIndex)
+    if CHARACTERSHEET.critbutton[tableIndex].crit == true then
+        CHARACTERSHEET.critbutton[tableIndex].crit = false
+        self.editButton({index=buttonIndex, label="Critical?", color=buttonColor})
+    else
+        CHARACTERSHEET.critbutton[tableIndex].crit = true
+        self.editButton({index=buttonIndex, label="CRITICAL!!!",color={1,0,0}})
+    end
+end
+
+function click_broadcastbutton(tableIndex, buttonIndex)
+    if CHARACTERSHEET.broadcastbutton[tableIndex].broadcast == true then
+        CHARACTERSHEET.broadcastbutton[tableIndex].broadcast = false
+        self.editButton({index=buttonIndex, label="Broadcasting to DM Only", color={1,0,0}})
+    else
+        CHARACTERSHEET.broadcastbutton[tableIndex].broadcast = true
+        self.editButton({index=buttonIndex, label="Broadcasting to All",color=buttonColor})
+    end
+end
+
+function click_eabutton(tableIndex, buttonIndex)
+    if CHARACTERSHEET.eabutton[tableIndex].reroll == true then
+        CHARACTERSHEET.eabutton[tableIndex].reroll = false
+        self.editButton({index=buttonIndex, label="EA Off", color=buttonColor})
+    else
+        CHARACTERSHEET.eabutton[tableIndex].reroll = false
+        self.editButton({index=buttonIndex, label="EA On!",color={0,0,1}})
+    end
+end
+
+--Locks or unlocks edits
+function click_lockbutton(tableIndex, buttonIndex)
+    local buttonList = {}
+    CHARACTERSHEET.lockbutton[tableIndex].locked = not CHARACTERSHEET.lockbutton[tableIndex].locked
+    if CHARACTERSHEET.lockbutton[tableIndex].locked then
+        self.editButton({index=buttonIndex, label="LOCKED"})
+        for _, data in ipairs(lockablebutton) do
+            local showlabel = data.showlabel
+            if showlabel then
+                self.editButton({index=data.index, height =0, width = 0})
+            else
+                self.editButton({index=data.index, height =0, width = 0,font_color = {1,1,1,0}})
+            end
+        end
+    else
+       self.editButton({index=buttonIndex, label="UNLOCKED"})
+        for _, data in ipairs(lockablebutton) do
+            self.editButton({index=data.index, height =data.height, width = data.width, font_color=buttonFontColor})
+        end
+    end
+    updateSave()
+end
+
+--Checks or unchecks the given box
+function click_checkbox(tableIndex, buttonIndex)
+    if CHARACTERSHEET.checkbox[tableIndex].state == true then
+        CHARACTERSHEET.checkbox[tableIndex].state = false
+        self.editButton({index=buttonIndex, label=""})
+    else
+        CHARACTERSHEET.checkbox[tableIndex].state = true
+        self.editButton({index=buttonIndex, label=string.char(10008)})
+    end
+    updateSave()
+end
+
+--Applies value to given counter display
+function click_counter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.counter[tableIndex].value = CHARACTERSHEET.counter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.counter[tableIndex].value})
+    updateSave()
+end
+
+function click_HPcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.HPcounter[tableIndex].value = CHARACTERSHEET.HPcounter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.HPcounter[tableIndex].value})
+    updateSave()
+end
+
+--Applies value to given initiative counter display
+function click_initcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.initcounter[tableIndex].value = CHARACTERSHEET.initcounter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.initcounter[tableIndex].value})
+    count=count+amount
+    updateSave()
+end
+
+--Applies value to given abilitycounter display
+function click_abilitycounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.abilitycounter[tableIndex].value = CHARACTERSHEET.abilitycounter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.abilitycounter[tableIndex].value})
+    updateSave()
+end
+
+--Applies value to given attackcounter display
+function click_attackcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.attackcounter[tableIndex].value = CHARACTERSHEET.attackcounter[tableIndex].value + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.attackcounter[tableIndex].value})
+    updateSave()
+end
+
+--Applies value to given damagecounter display
+function click_dicenumcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.damagecounter[tableIndex].dicenum = CHARACTERSHEET.damagecounter[tableIndex].dicenum + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.damagecounter[tableIndex].dicenum.."D"..CHARACTERSHEET.damagecounter[tableIndex].dicetype.."+"..CHARACTERSHEET.damagecounter[tableIndex].dammod})
+    updateSave()
+end
+
+function click_dicetypecounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.damagecounter[tableIndex].dicetype = CHARACTERSHEET.damagecounter[tableIndex].dicetype + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.damagecounter[tableIndex].dicenum.."D"..CHARACTERSHEET.damagecounter[tableIndex].dicetype.."+"..CHARACTERSHEET.damagecounter[tableIndex].dammod})
+    updateSave()
+end
+
+function click_dammodcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.damagecounter[tableIndex].dammod = CHARACTERSHEET.damagecounter[tableIndex].dammod + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.damagecounter[tableIndex].dicenum.."D"..CHARACTERSHEET.damagecounter[tableIndex].dicetype.."+"..CHARACTERSHEET.damagecounter[tableIndex].dammod})
+    updateSave()
+end
+
+function click_dicerollernumcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.dicerollers[tableIndex].dicenum = CHARACTERSHEET.dicerollers[tableIndex].dicenum + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.dicerollers[tableIndex].dicenum.."D"..CHARACTERSHEET.dicerollers[tableIndex].dicetype.."+"..CHARACTERSHEET.dicerollers[tableIndex].dammod})
+    updateSave()
+end
+
+function click_dicerollertypecounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.dicerollers[tableIndex].dicetype = CHARACTERSHEET.dicerollers[tableIndex].dicetype + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.dicerollers[tableIndex].dicenum.."D"..CHARACTERSHEET.dicerollers[tableIndex].dicetype.."+"..CHARACTERSHEET.dicerollers[tableIndex].dammod})
+    updateSave()
+end
+
+function click_damrollermodcounter(tableIndex, buttonIndex, amount)
+    CHARACTERSHEET.dicerollers[tableIndex].dammod = CHARACTERSHEET.dicerollers[tableIndex].dammod + amount
+    self.editButton({index=buttonIndex, label=CHARACTERSHEET.dicerollers[tableIndex].dicenum.."D"..CHARACTERSHEET.dicerollers[tableIndex].dicetype.."+"..CHARACTERSHEET.dicerollers[tableIndex].dammod})
+    updateSave()
+end
+
+--Updates saved value for given text box
+function click_textbox(i, value)
+    if CHARACTERSHEET.lockbutton[1].locked then
+        return CHARACTERSHEET.textbox[i].value
+    end
+    CHARACTERSHEET.textbox[i].value = value
+    updateSave()
+end
+
+--Dud function for if you have a background on a counter
+function click_none() end
+
+-- Formats the Output and Addition of All Dice
+function diceDealer(dCount, dietype,displayCol,obj,target)
+    local numTab = {}
+    local numTabadv = {}
+    local printx = "[i]** würfelt "..dCount.."W"..dietype.." "
+    local printy = "("
+    local printz = "("
+    local dTotal = 0
+    local dTotaladv = 0
+    local target="All"
+    if CHARACTERSHEET.broadcastbutton[1].broadcast==false then
+        target="DM"
+    end
+    for i = 1, dCount, 1 do
+        numTab[i] = math.random(dietype)
+        numTabadv[i] = math.random(dietype)
+        total = total + numTab[i]
+        totaladv = totaladv + numTabadv[i]
+        dTotal = dTotal + numTab[i]
+        dTotaladv = dTotaladv + numTabadv[i]
+        printy = printy..numTab[i]..", "
+        printz = printz..numTabadv[i]..", "
+    end
+    select_Broadcast("Print",printx, displayCol,obj,target)
+end
+
+-- Gets the Color Value for Player
+function getColor(obj)
+    if obj == "Brown" then return  {0.443, 0.231, 0.09}
+    elseif obj == "White" then return  {1, 1, 1}
+    elseif obj == "Red" then return  {0.856, 0.1, 0.094}
+    elseif obj == "Yellow" then return  {0.905, 0.898, 0.172}
+    elseif obj == "Green" then return  {0.192, 0.701, 0.168}
+    elseif obj == "Teal" then return  {0.129, 0.694, 0.607}
+    elseif obj == "Blue" then return  {0.118, 0.53, 1}
+    elseif obj == "Purple" then	return  {0.627, 0.125, 0.941}
+    elseif obj == "Pink" then return  {0.96, 0.439, 0.807}
+    elseif obj == "Grey" then return  {0.5, 0.5, 0.5}
+    elseif obj == "Orange" then return  {0.956, 0.392, 0.113}
+    elseif obj == "Black" then return {1, 1, 1}
+    end
+end
+
+-- Keeps our randomseed random
+function updateRandomSeed()
+    local chance = math.random(1,10)
+    if chance == 1 then
+        math.randomseed(os.time())
+    end
+end
+
+--Button creation
+
+--Makes lockbutton
+function createLockbutton()
+    for i, data in ipairs(CHARACTERSHEET.lockbutton) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        local funcName = "lockbutton"..i
+        local func = function() click_lockbutton(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "UNLOCKED"
+        if data.locked then label="LOCKED" end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=data.size, width=data.size*6,
+            font_size=data.size, scale=buttonScale,
+            color=buttonColor, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+function createBroadcastbutton()
+    for i, data in ipairs(CHARACTERSHEET.broadcastbutton) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        CHARACTERSHEET.broadcastbutton[1].buttonindex=buttonNumber
+        local funcName = "broadcastbutton"..i
+        local func = function() click_broadcastbutton(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "Broadcasting to All"
+        local height=data.height
+        local width = data.width
+        local color=buttonColor
+        if data.crit == false then
+            label="Broadcasting to DM Only"
+            color={1,0,0}
+        end
+
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=true})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height = 0
+                width=0
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=data.height, scale=buttonScale,
+            color=color, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+function createCritbutton()
+    for i, data in ipairs(CHARACTERSHEET.critbutton) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        CHARACTERSHEET.critbutton[1].buttonindex=buttonNumber
+        local funcName = "critbutton"..i
+        local func = function() click_critbutton(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "Critical?"
+        local height=data.height
+        local width = data.width
+        local color=buttonColor
+        if data.crit then
+            label="CRITICAL!!!"
+            color={1,0,0}
+            end
+
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=data.height, scale=buttonScale,
+            color=color, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+function createEAbutton()
+    for i, data in ipairs(CHARACTERSHEET.eabutton) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        CHARACTERSHEET.eabutton[1].buttonindex=buttonNumber
+        local funcName = "eabutton"..i
+        local func = function() click_eabutton(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "EA Off"
+        local height=data.height
+        local width=data.width
+        local color=buttonColor
+        if data.reroll then
+            label="EA On!"
+            color={0,0,1}
+        end
+
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=true})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height = 0
+                width=00
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=data.size, scale=buttonScale,
+            color=color, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+
+--Makes checkboxes
+function createCheckbox()
+    for i, data in ipairs(CHARACTERSHEET.checkbox) do
+        --Sets up reference function
+        local buttonNumber = spawnedButtonCount
+        local funcName = "checkbox"..i
+        local func = function() click_checkbox(i, buttonNumber) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = ""
+        if data.state==true then label=string.char(10008) end
+        --Sets height/width for display
+        local size = data.size
+        local fontcolor=buttonFontColor
+
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=size, width=size,showlabel=true})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                size = 0
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=size, width=size,
+            font_size=data.size, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+--Makes counters
+function createCounter()
+    print(spawnedButtonCount)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        --Sets up display
+        local displayNumber = spawnedButtonCount
+        --Sets up label
+        local label = data.value
+        --Sets height/width for display
+        local size = data.size
+        if data.hideBG == true then size = 0 end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function="click_none", function_owner=self,
+            position=data.pos, height=size, width=size,
+            font_size=data.size, scale=buttonScale,
+            color=buttonColor, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up add 1
+        local increment = data.increment
+        local funcName = "counterAdd"..i
+        local func = function() click_counter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "+"
+        --Sets up position
+        local offsetDistance = (data.size/2 + data.size/4) * (buttonScale[1] * 0.002)
+        local pos = {data.pos[1] + offsetDistance, data.pos[2], data.pos[3]}
+        --Sets up size
+        local size = data.size / 2
+        local fontsize=size
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=size, width=size,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                size = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=size, width=size,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up subtract 1
+        local increment = 0-data.increment
+        local funcName = "counterSub"..i
+        local func = function() click_counter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "-"
+        --Set up position
+        local pos = {data.pos[1] - offsetDistance, data.pos[2], data.pos[3]}
+        local size = data.size / 2
+        local fontsize=size
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=size, width=size,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                size = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=size, width=size,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+    end
+end
+
+--Makes damagecounters
+function createdamageCounter()
+    for i, data in ipairs(CHARACTERSHEET.damagecounter) do
+         --Set up attack button function
+        local funcName = "damagecounterrollHit"..i
+        local func = function(obj,color) rollDamage(obj,color,i) end
+        self.setVar(funcName, func)
+        --Sets up display
+        local displayNumber = spawnedButtonCount
+        --Sets up label
+        local label = data.dicenum.."D"..data.dicetype.."+"..data.dammod
+        --Sets height/width for display
+        local height = data.height
+        local width = data.width
+        local fontsize=data.height+(180-data.height)/2
+        if data.hideBG == true then
+            height = 0
+            width=0
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up add 1
+        local increment = data.increment
+        local funcName = "dicenumcounterAdd"..i
+        local func = function() click_dicenumcounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "+"
+        --Sets up position
+        local offsetDistance = (data.height/2 + data.height/4+(180-data.height)/4) * (buttonScale[1] * 0.002)
+        local pos = {data.pos[1] - (2 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+        --Sets up size
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up subtract 1
+        local increment = 0-data.increment
+        local funcName = "dicenumcounterSub"..i
+        local func = function() click_dicenumcounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "-"
+        --Set up position
+        local pos = {data.pos[1] - (2 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up add 1
+        local increment = data.increment
+        local funcName = "dicetypecounterAdd"..i
+        local func = function() click_dicetypecounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "+"
+        --Sets up position
+        local offsetDistance = (data.height/2 + data.height/4+(180-data.height)/4) * (buttonScale[1] * 0.002)
+        local pos = {data.pos[1] - (0.5 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+        --Sets up size
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up subtract 1
+        local increment = 0-data.increment
+        local funcName = "dicetypecounterSub"..i
+        local func = function() click_dicetypecounter(i, displayNumber, -1) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "-"
+        --Set up position
+        local pos = {data.pos[1] - (0.5 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up add 1 to damage modifier
+        local increment = data.increment
+        local funcName = "dammodcounterAdd"..i
+        local func = function() click_dammodcounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "+"
+        --Sets up position
+        local offsetDistance = (data.height/2 + data.height/4+(180-data.height)/4) * (buttonScale[1] * 0.002)
+        local pos = {data.pos[1] + (2 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+        --Sets up size
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+        --Sets up subtract 1 do damage modifier
+        local increment = 0-data.increment
+        local funcName = "dammodcounterSub"..i
+        local func = function() click_dammodcounter(i, displayNumber, increment) end
+        self.setVar(funcName, func)
+        --Sets up label
+        local label = "-"
+        --Set up position
+        local pos = {data.pos[1] + (2 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+        local height=data.height/2
+        local width = data.height/2
+        local fontsize=data.height/2
+        local fontcolor=buttonFontColor
+        if data.lockable then
+            table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+            if CHARACTERSHEET.lockbutton[1].locked then
+                height=0
+                width = 0
+                fontcolor={1,1,1,0}
+            end
+        end
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=pos, height=height, width=width,
+            font_size=fontsize, scale=buttonScale,
+            color=buttonColor, font_color=fontcolor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+
+    end
+end
+
+function creatediceButtons()
+    for i, data in ipairs(CHARACTERSHEET.dicerollers) do
+         --Set up attack button function
+        local funcName = "diceroller"..i
+        local func = function(obj,color) rollDice(obj,color,i) end
+        self.setVar(funcName, func)
+        --Sets up display
+        local displayNumber = spawnedButtonCount
+        --Sets up label
+
+        local label = data.label
+        if label=="" then
+            label=data.dicenum.."D"..data.dicetype.."+"..data.dammod
+        end
+        --Sets height/width for display
+        local height = data.height
+        local width = data.width
+        --Creates button and counts it
+        self.createButton({
+            label=label, click_function=funcName, function_owner=self,
+            position=data.pos, height=height, width=width,
+            font_size=data.fontsize, scale=buttonScale,
+            color=buttonColor, font_color=buttonFontColor
+        })
+        spawnedButtonCount = spawnedButtonCount + 1
+        if data.name=="Hit Dice" then
+            --Sets up add 1
+            local increment = data.increment
+            local funcName = "dicerollernumcounterAdd"..i
+            local func = function() click_dicerollernumcounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "+"
+            --Sets up position
+            local offsetDistance = (data.height/2 + data.height/4) * (buttonScale[1] * 0.002)
+            local pos = {data.pos[1] - (2 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+            --Sets up size
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up subtract 1
+            local increment = 0-data.increment
+            local funcName = "dicerollernumcounterSub"..i
+            local func = function() click_dicerollernumcounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "-"
+            --Set up position
+            local pos = {data.pos[1] - (2 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up add 1
+            local increment = data.increment
+            local funcName = "dicerollertypecounterAdd"..i
+            local func = function() click_dicerollertypecounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "+"
+            --Sets up position
+            local offsetDistance = (data.height/2 + data.height/4) * (buttonScale[1] * 0.002)
+            local pos = {data.pos[1] - (0.5 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+            --Sets up size
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up subtract 1
+            local increment = 0-data.increment
+            local funcName = "dicerollertypecounterSub"..i
+            local func = function() click_dicerollertypecounter(i, displayNumber, -1) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "-"
+            --Set up position
+            local pos = {data.pos[1] - (0.5 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up add 1 to damage modifier
+            local increment = data.increment
+            local funcName = "damrollermodcounterAdd"..i
+            local func = function() click_damrollermodcounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "+"
+            --Sets up position
+            local offsetDistance = (data.height/2 + data.height/4) * (buttonScale[1] * 0.002)
+            local pos = {data.pos[1] + (2 * offsetDistance), data.pos[2], data.pos[3] - offsetDistance}
+            --Sets up size
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+
+            --Sets up subtract 1 do damage modifier
+            local increment = 0-data.increment
+            local funcName = "damrollermodcounterSub"..i
+            local func = function() click_damrollermodcounter(i, displayNumber, increment) end
+            self.setVar(funcName, func)
+            --Sets up label
+            local label = "-"
+            --Set up position
+            local pos = {data.pos[1] + (2 * offsetDistance), data.pos[2], data.pos[3] + offsetDistance}
+            local height=data.height*0.5
+            local width = data.height*0.5
+            local fontsize=data.height*0.5
+            local fontcolor=buttonFontColor
+            if data.lockable then
+                table.insert(lockablebutton,{index=spawnedButtonCount,height=height, width=width,showlabel=false})
+                if CHARACTERSHEET.lockbutton[1].locked then
+                    local height=0
+                    local width = 0
+                    local fontcolor={1,1,1,0}
+                end
+            end
+            --Creates button and counts it
+            self.createButton({
+                label=label, click_function=funcName, function_owner=self,
+                position=pos, height=height, width=width,
+                font_size=fontsize, scale=buttonScale,
+                color=buttonColor, font_color=fontcolor
+            })
+            spawnedButtonCount = spawnedButtonCount + 1
+        end
+    end
+end
+
+function createTextbox()
+    for i, data in ipairs(CHARACTERSHEET.textbox) do
+        --Sets up reference function
+        local funcName = "textbox"..i
+        local func = function(_,_,val) click_textbox(i,val) return CHARACTERSHEET.textbox[i].value end
+        self.setVar(funcName, func)
+        local height =(data.font_size*data.rows)+24
+        local width =data.width
+
+        self.createInput({
+            input_function = funcName,
+            function_owner = self,
+            label          = data.label,
+            alignment      = data.alignment,
+            position       = data.pos,
+            scale          = buttonScale,
+            width          = data.width,
+            height         = (data.font_size*data.rows)+24,
+            font_size      = data.font_size,
+            color          = buttonColor,
+            font_color     = buttonFontColor,
+            value= data.value
+        })
+        spawnedInputCount = spawnedInputCount + 1
+    end
+end
+
+function addiertAlles(namen)
+    print("test " .. namen)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.name == namen .. " gesamt" then
+            kompetenzbonusRechner(namen)
+            data.value = sucheWert(namen," Kompetenzbonus") + sucheWert(namen," Attribut")
+            self.editButton({index=105 + i * 3, label=data.value})
+            break
+        end
+    end
+end
+
+function addiertAllesPlusZehn(namen)
+    print("test " .. namen)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.name == namen .. " gesamt" then
+            kompetenzbonusRechner(namen)
+            data.value = sucheWert(namen," Kompetenzbonus") + sucheWert(namen," Attribut") + 10
+            self.editButton({index=105 + i * 3, label=data.value})
+            break
+        end
+    end
+end
+
+
+function sucheKreuz(namen,typ)
+    local foundItem
+    for i, data in ipairs(CHARACTERSHEET.checkbox) do
+        if tostring(data.name) == tostring(namen .. typ) then
+            foundItem = data.state
+            break
+        end
+    end
+
+    return foundItem
+end
+
+function sucheWert(namen,typ)
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if tostring(data.name) == tostring(namen .. typ) then
+            return data.value
+        end
+    end
+    return 0
+end
+
+
+function kompetenzbonusRechner(namen)
+    local value = 0
+    local stufe = 1
+
+    --print_table(CHARACTERSHEET.checkbox)
+    if sucheKreuz(namen," G") then if stufe == 1 then value = 4 else value = stufe + 2 end
+    elseif sucheKreuz(namen," E") then value = stufe + 4
+    elseif sucheKreuz(namen," M") then value = stufe + 6
+    elseif sucheKreuz(namen," L") then value = stufe + 8
+    end
+    for i, data in ipairs(CHARACTERSHEET.counter) do
+        if data.name == namen .. " Kompetenzbonus" then
+            data.value = value
+            self.editButton({index=105 + i * 3, label=value})
+            break
+        end
+    end
+end
+
+tokenType='Player'
