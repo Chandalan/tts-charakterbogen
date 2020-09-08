@@ -2680,6 +2680,7 @@ function updateSave()
     if edited==false then
         edited=true
     end
+
     -- saved_data = JSON.encode(CHARACTERSHEET)
     -- if disableSave==true then saved_data="" end
     -- self.script_state = saved_data
@@ -3776,7 +3777,6 @@ function createTextbox()
 end
 
 function addiertAlles(namen)
-    print("test " .. namen)
     for i, data in ipairs(CHARACTERSHEET.counter) do
         if data.name == namen .. " gesamt" then
             kompetenzbonusRechner(namen)
@@ -3788,7 +3788,6 @@ function addiertAlles(namen)
 end
 
 function addiertAllesPlusZehn(namen)
-    print("test " .. namen)
     for i, data in ipairs(CHARACTERSHEET.counter) do
         if data.name == namen .. " gesamt" then
             kompetenzbonusRechner(namen)
@@ -3824,7 +3823,7 @@ end
 
 function kompetenzbonusRechner(namen)
     local value = 0
-    local stufe = 1
+    local stufe = Global.call("getStufe")
 
     --print_table(CHARACTERSHEET.checkbox)
     if sucheKreuz(namen," G") then if stufe == 1 then value = 4 else value = stufe + 2 end

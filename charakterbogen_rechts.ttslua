@@ -3865,6 +3865,9 @@ function updateSave()
 
     addiertAllesPlusZehn("Klassen-SG");
 
+
+    Global.call("setStufe", sucheWert("Stu","fe"))
+
     if edited==false then
         edited=true
     end
